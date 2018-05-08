@@ -1,2 +1,48 @@
-# rusticnes-wasm
-A web based interface for RusticNES, running on Web Assembly for sweet retro action in the browser.
+# RusticNES-wasm
+
+A web based interface for [RusticNES](https://github.com/zeta0134/rusticnes-core), running on Web Assembly for sweet retro action in the browser. Includes a basic web shell to operate the emulator, and relies on [wasm-bindgen](https://github.com/rustwasm/wasm-bindgen) to simplify the interface between the emulator core and the JavaScript UI. This is a very early work in progress, expect bugs!
+
+## Building
+
+First, install the wasm32-unknown-unknown target. As of this writing, this is only available in rust nightly, so install that too as the build script expects it:
+
+```
+rustup toolchain install nightly
+rustup target add wasm32-unknown-unknown --toolchain nightly
+```
+
+Then, run the `./build.sh` script in the main folder. Afterwards, you should be able to open `main.html` in Firefox and run the emulator. For Chrome, you'll need to host the compiled assets somewhere, as Chrome will not allow the project to load the files it needs from the local filesystem due to security restrictions.
+
+## Usage
+
+Right now, cartridge loading is specified in the query string, so store your .nes files relative to the main.html file, then do this: `/path/to/main.html?cartridge=game.nes`. Until the UI is more fleshed out, I find it convenient to change this value, then refresh the page to reset the emulator. Once loaded, emulation begins immediately, and the emulator will try to maintain 60 FPS, the success of which depends on how powerful your computer, tablet, or phone is. Controls are as follows:
+
+```
+D-Pad: Arrow Keys
+A: X
+B: Z
+Start: Enter
+Select: Shift
+```
+
+## Planned Features
+
+- Key Remapping
+- SRAM Persistence (Local Storage?)
+- Cartridge Opening by URL / File Selector
+- Speed Improvements
+
+Needs rusticnes-core support:
+- Player 2 Controls
+- NES Zapper
+- Save States
+
+## General Notes
+
+All shells to RusticNES are limited by features present in the core emulator, so some features cannot be considered in a shell without additional upstream support. This applies to emulation bugs as well, especially with regards to missing mapper support. Bug reports are welcome! I don't have time to test every game out there, but I love a good challenge.
+
+Several technologies involved in this project are moving targets, not the least of which being WASM itself. Web Audio is particularly new, and might run into strange issues; I've heard reports of it deciding to mix audio at 192 KHz on some Windows systems, which should work but will definitely make the emulator work a lot harder. As of this writing, the emulator works in both Firefox and Chrome, and has faster performance on Firefox. It does not load in Microsoft Edge due to some missing (but planned) features that wasm-bindgen relies on. I'll try to correct for this later, but might need to wait on Microsoft for a proper fix. I'd like to make it as standards compliant as possible, so if it's not working in your favorite browser, (and you're reasonably confident that browser at least supports WASM), bug reports are welcome!
+
+If you'd like to debug the emulator in more detail, right now the [RusticNES-SDL](https://github.com/zeta0134/rusticnes-sdl) frontend is much more mature, and supports SRAM saving and many debug features. You should give it a try, as both shells use the same rusticnes-core backend. Emulation accuracy and gameplay should be identical between the various frontends.
+
+Feel free to distribute this emulator freely! I'll get proper license terms figured out eventually, but it's open source of course, I mostly ask for common courtesy and respect. Fork, modify, extend, and have fun with it! However, please do be careful with regards to copyright law. The emulator will play any ROM, even commercial ROMs, but this does not give you the right to distribute those ROMs on your personal website. Please obey the local laws in your country / state, and make sure to give Nintendo and other game publishers your support by buying their current titles and Virtual Console releases.
