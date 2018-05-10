@@ -79,7 +79,7 @@ function gameLoop() {
 
   var runtime = Date.now() - start_time;
   var target_frame = runtime / (1000 / 60);
-  if (target_frame - current_frame > 10) {
+  if (target_frame - current_frame > 2) {
     // We're running behind, reset the timer so we don't run off the deep end
     start_time = Date.now();
     current_frame = 0;
