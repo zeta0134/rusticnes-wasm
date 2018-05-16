@@ -114,7 +114,7 @@ window.addEventListener("click", function() {
   console.log("Did a thing.");
 });
 
-function load_cartridge(url) {
+function load_cartridge_by_url(url) {
   var rawFile = new XMLHttpRequest();
   rawFile.overrideMimeType("application/octet-stream");
   rawFile.open("GET", url, true);
@@ -136,12 +136,30 @@ function load_cartridge(url) {
   rawFile.send(null);
 }
 
+function load_cartridge_by_file(e) {
+  var file = e.target.files[0];
+  if (!file) {
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    cart_data = new Uint8Array(e.target.result);
+    load_rom(cart_data);
+    set_audio_samplerate(audio_sample_rate);
+    start_time = Date.now();
+    current_frame = 0;
+    requestAnimationFrame(gameLoop);
+  }
+  reader.readAsArrayBuffer(file);
+}
+
 function runApp() {
   let params = new URLSearchParams(location.search.slice(1));
   console.log("params", params);
   if (params.get("cartridge")) {
-    load_cartridge(params.get("cartridge"));
+    load_cartridge_by_url(params.get("cartridge"));
   }
+  document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);
 }
 
 // Load and instantiate the wasm file, and we specify the source of the wasm
