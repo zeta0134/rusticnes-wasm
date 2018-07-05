@@ -38,7 +38,7 @@ pub fn run_until_vblank() {
 
 #[wasm_bindgen]
 pub fn get_screen_pixels() -> Vec<u8> {
-  let mut pixels = vec![0u8; 256*256*4];
+  let mut pixels = vec![0u8; 256*240*4];
   let nes = NES.lock().expect("wat");
   
   for x in 0 .. 256 {

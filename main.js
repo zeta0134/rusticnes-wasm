@@ -101,11 +101,11 @@ function gameLoop() {
   }
 
   canvas = document.querySelector('#pixels');
-  image_data = new ImageData(new Uint8ClampedArray(pixels), 256, 256);
+  image_data = new ImageData(new Uint8ClampedArray(pixels), 256, 240);
   ctx = canvas.getContext("2d")
   ctx.putImageData(image_data, 0, 0);
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(canvas, 0, 0, 1024, 1024);
+  ctx.drawImage(canvas, 0, 0, 2304, 2160);
   requestAnimationFrame(gameLoop);
 }
 
