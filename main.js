@@ -110,8 +110,8 @@ function gameLoop() {
 }
 
 window.addEventListener("click", function() {
+  // Needed to play audio in certain browsers, notably Chrome, which restricts playback until user action.
   audio_context.resume();
-  console.log("Did a thing.");
 });
 
 function load_cartridge_by_url(url) {

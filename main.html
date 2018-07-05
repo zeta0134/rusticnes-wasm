@@ -10,17 +10,19 @@
   <div id="header">
     <h1>RusticNES</h1>
     <h2>Emulation Station</h2>
+    <div class="black_stripe"></div>
   </div>
   <div id="navbar">
     <ul id="main_menu">
-      <li><a href="#">Power</a></li>
-      <li><a href="#">Reset</a></li>
+      <li id="power_light"><div id="led" class="powered"></div></li>
+      <li><label for="file-loader">Load</label><input type="file" id="file-loader" name="file-loader" /></li>
+      <li><a href="#">Input</a></li>
     </ul>
+    <div class="black_stripe"></div>
   </div>
   <div id="content_area">
     <div class="tab_content" id="playfield">
       <canvas id="pixels" width="256" height="240"></canvas><br />
-      <input type="file" id="file-loader" />
     </div>
   </div>
 </body>

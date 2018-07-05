@@ -2,30 +2,36 @@ body, html {
   width: 100%;
   margin: 0px;
   padding: 0px;
-  background-color: white;
   font-family: sans-serif;
 }
 
 html {
-  background-color: #222222;
+  background-color: #111111;
+  height: 100%;
 }
 
 body {
-  background-color: #333333;
+  background-color: #222222;
+  box-shadow: 0 0 5px #080808;
   width: 980px;
+  min-height: 100%;
   margin-left: auto;
   margin-right: auto;
 }
 
 #header {
+  position: relative;
   background-color: #CCCBC6;
   padding: 8px;
-  padding-left: 12px;
+  padding-left: 52px;
+  border-bottom: 1px solid #9B9B9B;
 }
 
 #header h1 {
   color: #A93C3F;
-  font-size: 20px;
+  font-size: 18px;
+  transform-origin: left center;
+  transform:scale(1.2,1);
   margin: 0px;
   padding: 0px;
 }
@@ -33,14 +39,18 @@ body {
 #header h2 {
   color: #A93C3F;
   text-transform: uppercase;
-  font-size: 14px;
+  transform-origin: left center;
+  transform:scale(1.2,1);
+  font-size: 10px;
   margin: 0px;
   padding: 0px;
 }
 
 #navbar {
+  position: relative;
   background-color: #7F7F7F;
   margin-top: 0px;
+  border-top: #A9A9A9;
 }
 
 #main_menu {
@@ -49,7 +59,7 @@ body {
   width: 100%;
   margin: 0px;
   padding: 0px;
-} 
+}
 
 #main_menu li {
   display: block;
@@ -58,25 +68,56 @@ body {
   text-transform: uppercase;
   font-weight: bold;
   border: 1px solid #7F7F7F;
-  border-radius: 3px;
+  border-radius: 2px;
   box-shadow: inset 0px 0px 5px #2C2A2B;
   padding: 2px;
   padding-left: 3px;
   padding-top: 3px;
 }
 
-#main_menu li a {
+#main_menu li a, #main_menu li label {
   display: block;
   padding-top:   10px;
   padding-left:  15px;
   padding-right:  5px;
   padding-bottom: 5px;
-  font-size: 14px;
+  font-size: 12px;
   border-right: 2px solid #585755;
-  border-bottom: 2px solid #31302E;
+  border-bottom: 2px solid #383634;
   background-color: #7F7F7F;
-  color: #6E433A;
+  color: #74403C;
   text-decoration: none;
+  cursor: pointer;
+}
+
+#main_menu #power_light {
+  display: flex;
+  align-items: center;
+  border: none;
+  box-shadow: none;
+}
+
+#main_menu #power_light #led {
+  width: 10px;
+  height: 10px;
+  margin-left: 10px;
+  border: 1px solid #1B1917;
+  background-color: #353233;
+}
+
+#main_menu #power_light #led.powered {
+  background-color: #BB0A0A;
+  box-shadow: 0px 0px 4px #FF1010;
+}
+
+div.black_stripe {
+  position: absolute;
+  top: -1px;
+  right: 50px;
+  height: 100%;
+  width: 100px;
+  background-color: #121212;
+  border-top: 1px solid #363636;
 }
 
 #playfield {
@@ -86,10 +127,20 @@ body {
 canvas#pixels {
   width: 768px;
   height: 720px;
+  margin-top: 20px;
 
   image-rendering: -moz-crisp-edges;
   image-rendering: -o-crisp-edges;
   image-rendering: -webkit-optimize-contrast;
   -ms-interpolation-mode: nearest-neighbor;
   image-rendering: pixelated;
+}
+
+input#file-loader {
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  z-index: -1;
 }
