@@ -165,4 +165,4 @@ function runApp() {
 // Load and instantiate the wasm file, and we specify the source of the wasm
 // file here. Once the returned promise is resolved we're ready to go and
 // use our imports.
-wasm_bindgen('./hello_wasm_bg.wasm').then(runApp);
+wasm_bindgen('./rusticnes_wasm_bg.wasm').then(runApp);

@@ -3,3 +3,5 @@
 Cargo.lock
 *.wasm
 *.nes
+rusticnes_wasm.d.ts
+rusticnes_wasm.js
