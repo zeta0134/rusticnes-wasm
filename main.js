@@ -105,7 +105,7 @@ function gameLoop() {
   ctx = canvas.getContext("2d")
   ctx.putImageData(image_data, 0, 0);
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(canvas, 0, 0, 2304, 2160);
+  //ctx.drawImage(canvas, 0, 0, 2304, 2160);
   requestAnimationFrame(gameLoop);
 }
 
