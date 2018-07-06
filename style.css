@@ -143,13 +143,30 @@ div.black_stripe {
 }
 
 #playfield {
-  text-align: center;
+  display: flex;
 }
 
-canvas#pixels {
+#playfield div.canvas_container {
+  position: relative;
   width: 768px;
   height: 720px;
   margin-top: 20px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#playfield div.canvas_container img.overlay {
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 100%;
+}
+
+canvas#pixels {
+  width: 100%;
+  height: 100%;
 
   image-rendering: -moz-crisp-edges;
   image-rendering: -o-crisp-edges;

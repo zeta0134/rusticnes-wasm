@@ -207,6 +207,16 @@ function initializeButtonMappings() {
   });
 }
 
+function enterFullscreen() {
+  if (this.requestFullscreen) {
+    this.requestFullscreen();
+  } else if (this.mozRequestFullScreen) {
+    this.mozRequestFullScreen();
+  } else if (this.webkitRequestFullscreen) {
+    this.webkitRequestFullscreen();
+  }
+}
+
 function runApp() {
   let params = new URLSearchParams(location.search.slice(1));
   console.log("params", params);
@@ -215,12 +225,15 @@ function runApp() {
   }
   document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);
   
-  buttons = document.querySelectorAll("#main_menu button");
+  var buttons = document.querySelectorAll("#main_menu button");
   buttons.forEach(function(button) {
     button.addEventListener("click", switchToTab);
   });
 
   initializeButtonMappings();
+
+  document.querySelector("#playfield div.canvas_container").addEventListener("click", enterFullscreen);
+
 }
 
 // Load and instantiate the wasm file, and we specify the source of the wasm
