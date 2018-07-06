@@ -142,7 +142,7 @@ div.black_stripe {
   display: block;
 }
 
-#playfield {
+#playfield.active {
   display: flex;
 }
 
