@@ -12,6 +12,8 @@
 const { load_rom, run_until_vblank, get_screen_pixels, set_p1_input, set_audio_samplerate, audio_buffer_full, get_audio_buffer } = wasm_bindgen;
 
 var keys = 0;
+var remap_key = false;
+var remap_index = 0;
 
 var audio_buffer_size = 4096;
 var audio_sample_rate = 44100;
@@ -47,28 +49,36 @@ script_processor.onaudioprocess = function(e) {
 }
 script_processor.connect(audio_context.destination);
 
+var p1_keymap = [
+"z",
+"x",
+"Shift",
+"Enter",
+"ArrowUp",
+"ArrowDown",
+"ArrowLeft",
+"ArrowRight"];
+
 window.addEventListener('keydown', function(event) {
-  //ab sel sta udlr
-  if (event.key == "x")          { keys = keys | 0x01; }
-  if (event.key == "z")          { keys = keys | 0x02; }
-  if (event.key == "Shift")      { keys = keys | 0x04; }
-  if (event.key == "Enter")      { keys = keys | 0x08; }
-  if (event.key == "ArrowUp")    { keys = keys | 0x10; }
-  if (event.key == "ArrowDown")  { keys = keys | 0x20; }
-  if (event.key == "ArrowLeft")  { keys = keys | 0x40; }
-  if (event.key == "ArrowRight") { keys = keys | 0x80; }
+  if (remap_key) {
+    p1_keymap[remap_index] = event.key;
+    remap_key = false;
+    displayButtonMappings();
+    return;
+  }
+  for (var i = 0; i < 8; i++) {
+    if (event.key == p1_keymap[i]) {
+      keys = keys | (0x1 << i);
+    }
+  }
 });
 
 window.addEventListener('keyup', function(event) {
-  //ab sel sta udlr
-  if (event.key == "x")          { keys = keys & (~0x01); }
-  if (event.key == "z")          { keys = keys & (~0x02); }
-  if (event.key == "Shift")      { keys = keys & (~0x04); }
-  if (event.key == "Enter")      { keys = keys & (~0x08); }
-  if (event.key == "ArrowUp")    { keys = keys & (~0x10); }
-  if (event.key == "ArrowDown")  { keys = keys & (~0x20); }
-  if (event.key == "ArrowLeft")  { keys = keys & (~0x40); }
-  if (event.key == "ArrowRight") { keys = keys & (~0x80); }
+  for (var i = 0; i < 8; i++) {
+    if (event.key == p1_keymap[i]) {
+      keys = keys & ~(0x1 << i);
+    }
+  }
 });
 
 var start_time = 0;
@@ -172,6 +182,30 @@ function switchToTab() {
   tab.classList.add("active");
 }
 
+function displayButtonMappings() {
+  var buttons = document.querySelectorAll("#configure_input button");
+  buttons.forEach(function(button) {
+    var key_index = button.getAttribute("data-key");
+    button.innerHTML = p1_keymap[key_index];
+    button.classList.remove("remapping");
+  });
+}
+
+function remapButton() {
+  this.classList.add("remapping");
+  this.innerHTML = "..."
+  remap_key = true;
+  remap_index = this.getAttribute("data-key");
+}
+
+function initializeButtonMappings() {
+  displayButtonMappings();
+  var buttons = document.querySelectorAll("#configure_input button");
+  buttons.forEach(function(button) {
+    button.addEventListener("click", remapButton);
+  });
+}
+
 function runApp() {
   let params = new URLSearchParams(location.search.slice(1));
   console.log("params", params);
@@ -184,6 +218,8 @@ function runApp() {
   buttons.forEach(function(button) {
     button.addEventListener("click", switchToTab);
   });
+
+  initializeButtonMappings();
 }
 
 // Load and instantiate the wasm file, and we specify the source of the wasm
