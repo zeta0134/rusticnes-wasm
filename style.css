@@ -75,19 +75,31 @@ body {
   padding-top: 3px;
 }
 
-#main_menu li a, #main_menu li label {
+#main_menu li button, #main_menu li label {
   display: block;
   padding-top:   10px;
   padding-left:  15px;
   padding-right:  5px;
   padding-bottom: 5px;
   font-size: 12px;
-  border-right: 2px solid #585755;
-  border-bottom: 2px solid #383634;
+  font-weight: bold;
+  border-top: none;
+  border-left: none;
+  border-right: 3px solid #585755;
+  border-bottom: 3px solid #383634;
   background-color: #7F7F7F;
   color: #74403C;
   text-decoration: none;
   cursor: pointer;
+}
+
+#main_menu li button.active {
+  background-color: #787878;
+  border-right: 1px solid #585755;
+  border-bottom: 1px solid #383634;
+  /* Transparent top-left, for offset purposes */
+  border-top: 2px solid rgba(0, 0, 0, 0);
+  border-left: 2px solid rgba(0, 0, 0, 0);
 }
 
 #main_menu #power_light {
@@ -118,6 +130,14 @@ div.black_stripe {
   width: 100px;
   background-color: #121212;
   border-top: 1px solid #363636;
+}
+
+.tab_content {
+  display: none;
+}
+
+.tab_content.active {
+  display: block;
 }
 
 #playfield {

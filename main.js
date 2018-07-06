@@ -153,6 +153,25 @@ function load_cartridge_by_file(e) {
   reader.readAsArrayBuffer(file);
 }
 
+function clearTabs() {
+  var buttons = document.querySelectorAll("#main_menu button");
+  buttons.forEach(function(button) {
+    button.classList.remove("active");
+  });
+
+  var tabs = document.querySelectorAll("div.tab_content");
+  tabs.forEach(function(tab) {
+    tab.classList.remove("active");
+  });
+}
+
+function switchToTab() {
+  clearTabs();
+  this.classList.add("active");
+  tab = document.getElementById(this.getAttribute("name"));
+  tab.classList.add("active");
+}
+
 function runApp() {
   let params = new URLSearchParams(location.search.slice(1));
   console.log("params", params);
@@ -160,6 +179,11 @@ function runApp() {
     load_cartridge_by_url(params.get("cartridge"));
   }
   document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);
+  
+  buttons = document.querySelectorAll("#main_menu button");
+  buttons.forEach(function(button) {
+    button.addEventListener("click", switchToTab);
+  });
 }
 
 // Load and instantiate the wasm file, and we specify the source of the wasm

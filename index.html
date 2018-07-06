@@ -15,14 +15,18 @@
   <div id="navbar">
     <ul id="main_menu">
       <li id="power_light"><div id="led" class="powered"></div></li>
+      <li><button name="playfield" class="active">Play</button></li>
       <li><label for="file-loader">Load</label><input type="file" id="file-loader" name="file-loader" /></li>
-      <li><a href="#">Input</a></li>
+      <li><button name="configure_input">Input</button></li>
     </ul>
     <div class="black_stripe"></div>
   </div>
   <div id="content_area">
-    <div class="tab_content" id="playfield">
+    <div class="tab_content active" id="playfield">
       <canvas id="pixels" width="256" height="240"></canvas><br />
+    </div>
+    <div class="tab_content" id="configure_input">
+      INPUT AREA
     </div>
   </div>
 </body>
