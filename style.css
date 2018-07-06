@@ -11,7 +11,8 @@ html {
 }
 
 body {
-  background-color: #222222;
+  background-color: #000000;
+  color: #FDF0F1;
   box-shadow: 0 0 5px #080808;
   width: 980px;
   min-height: 100%;
@@ -134,6 +135,7 @@ div.black_stripe {
 
 .tab_content {
   display: none;
+  color: #dddddd;
 }
 
 .tab_content.active {
@@ -163,4 +165,26 @@ input#file-loader {
   overflow: hidden;
   position: absolute;
   z-index: -1;
+}
+
+#configure_input {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+#configure_input td {
+  text-align: right;
+  padding: 3px;
+  padding-left: 10px;
+}
+
+#configure_input button {
+  width: 200px;
+  border: none;
+  border-radius: 9px;
+  padding: 2px;
+  background-color: #8C8A85;
+  color: #84232B;
+  font-weight: bold;
+  text-transform: uppercase;
 }

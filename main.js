@@ -196,6 +196,7 @@ function remapButton() {
   this.innerHTML = "..."
   remap_key = true;
   remap_index = this.getAttribute("data-key");
+  this.blur();
 }
 
 function initializeButtonMappings() {
