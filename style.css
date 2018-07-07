@@ -144,13 +144,19 @@ div.black_stripe {
 
 #playfield.active {
   display: flex;
+  padding-top: 20px;
+}
+
+#playfield.fullscreen {
+  width: 100%;
+  height: 100%;
+  padding-top: 0px;
 }
 
 #playfield div.canvas_container {
   position: relative;
   width: 768px;
   height: 720px;
-  margin-top: 20px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -184,6 +190,15 @@ input#file-loader {
   z-index: -1;
 }
 
+.flex_columns {
+  display: flex;
+  display-direction: row;
+}
+
+.flex_columns div {
+  margin: auto;
+}
+
 #configure_input {
   padding-left: 10px;
   padding-right: 10px;
@@ -200,8 +215,8 @@ input#file-loader {
   border: none;
   border-radius: 9px;
   padding: 2px;
-  background-color: #8C8A85;
-  color: #84232B;
+  background-color: #727272;
+  color: #77221A;
   font-weight: bold;
   text-transform: uppercase;
 }

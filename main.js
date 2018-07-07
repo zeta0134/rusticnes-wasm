@@ -240,6 +240,43 @@ function enterFullscreen() {
   }
 }
 
+function handleFullscreenSwitch() {
+  if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+    console.log("Entering fullscreen...");
+    // Entering fullscreen
+    var viewport = document.querySelector("#playfield");
+    viewport.classList.add("fullscreen");
+
+    setTimeout(function() {
+      var viewport = document.querySelector("#playfield");
+
+      var viewport_width = viewport.clientWidth;
+      var viewport_height = viewport.clientHeight;
+
+      var canvas_container = document.querySelector("#playfield div.canvas_container");
+      if ((viewport_width / 256) * 240 > viewport_height) {
+        var target_height = viewport_height;
+        var target_width = target_height / 240 * 256;
+        canvas_container.style.width = target_width + "px";
+        canvas_container.style.height = target_height + "px";
+      } else {
+        var target_width = viewport_width;
+        var target_height = target_width / 256 * 240;
+        canvas_container.style.width = target_width + "px";
+        canvas_container.style.height = target_height + "px";
+      }
+    }, 100);
+  } else {
+    // Exiting fullscreen
+    console.log("Exiting fullscreen...");
+    var viewport = document.querySelector("#playfield");
+    var canvas_container = document.querySelector("#playfield div.canvas_container");
+    viewport.classList.remove("fullscreen");
+    canvas_container.style.width = "768px";
+    canvas_container.style.height = "720px";
+  }
+}
+
 function runApp() {
   let params = new URLSearchParams(location.search.slice(1));
   console.log("params", params);
@@ -255,8 +292,11 @@ function runApp() {
 
   initializeButtonMappings();
 
-  document.querySelector("#playfield div.canvas_container").addEventListener("click", enterFullscreen);
-
+  document.querySelector("#playfield").addEventListener("dblclick", enterFullscreen);
+  document.addEventListener("fullscreenchange", handleFullscreenSwitch);
+  document.addEventListener("webkitfullscreenchange", handleFullscreenSwitch);
+  document.addEventListener("mozfullscreenchange", handleFullscreenSwitch);
+  document.addEventListener("MSFullscreenChange", handleFullscreenSwitch);
 }
 
 // Load and instantiate the wasm file, and we specify the source of the wasm
