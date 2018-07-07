@@ -9,11 +9,12 @@
 // tweaked slightly, and you can consult https://github.com/rustwasm/wasm-bindgen
 // for more information.
 
-const { load_rom, run_until_vblank, get_screen_pixels, set_p1_input, set_audio_samplerate, audio_buffer_full, get_audio_buffer } = wasm_bindgen;
+const { load_rom, run_until_vblank, get_screen_pixels, set_p1_input, set_p2_input, set_audio_samplerate, audio_buffer_full, get_audio_buffer } = wasm_bindgen;
 
-var keys = 0;
+var keys = [0,0];
 var remap_key = false;
 var remap_index = 0;
+var remap_slot = 1;
 
 var audio_buffer_size = 4096;
 var audio_sample_rate = 44100;
@@ -49,7 +50,8 @@ script_processor.onaudioprocess = function(e) {
 }
 script_processor.connect(audio_context.destination);
 
-var p1_keymap = [
+var controller_keymaps = [];
+controller_keymaps[1] = [
 "z",
 "x",
 "Shift",
@@ -59,24 +61,42 @@ var p1_keymap = [
 "ArrowLeft",
 "ArrowRight"];
 
+controller_keymaps[2] = [
+"-",
+"-",
+"-",
+"-",
+"-",
+"-",
+"-",
+"-"];
+
 window.addEventListener('keydown', function(event) {
   if (remap_key) {
-    p1_keymap[remap_index] = event.key;
+    if (event.key != "Escape") {
+      controller_keymaps[remap_slot][remap_index] = event.key;
+    } else {
+      controller_keymaps[remap_slot][remap_index] = "-";
+    }
     remap_key = false;
     displayButtonMappings();
     return;
   }
-  for (var i = 0; i < 8; i++) {
-    if (event.key == p1_keymap[i]) {
-      keys = keys | (0x1 << i);
+  for (var c = 1; c <= 2; c++) {
+    for (var i = 0; i < 8; i++) {
+      if (event.key == controller_keymaps[c][i]) {
+        keys[c] = keys[c] | (0x1 << i);
+      }
     }
   }
 });
 
 window.addEventListener('keyup', function(event) {
-  for (var i = 0; i < 8; i++) {
-    if (event.key == p1_keymap[i]) {
-      keys = keys & ~(0x1 << i);
+  for (var c = 1; c <= 2; c++) {
+    for (var i = 0; i < 8; i++) {
+      if (event.key == controller_keymaps[c][i]) {
+        keys[c] = keys[c] & ~(0x1 << i);
+      }
     }
   }
 });
@@ -85,7 +105,8 @@ var start_time = 0;
 var current_frame = 0;
 
 function gameLoop() {
-  set_p1_input(keys);
+  set_p1_input(keys[1]);
+  set_p2_input(keys[2]);
 
   var runtime = Date.now() - start_time;
   var target_frame = runtime / (1000 / 60);
@@ -186,7 +207,8 @@ function displayButtonMappings() {
   var buttons = document.querySelectorAll("#configure_input button");
   buttons.forEach(function(button) {
     var key_index = button.getAttribute("data-key");
-    button.innerHTML = p1_keymap[key_index];
+    var key_slot = button.getAttribute("data-slot");
+    button.innerHTML = controller_keymaps[key_slot][key_index];
     button.classList.remove("remapping");
   });
 }
@@ -196,6 +218,7 @@ function remapButton() {
   this.innerHTML = "..."
   remap_key = true;
   remap_index = this.getAttribute("data-key");
+  remap_slot = this.getAttribute("data-slot");
   this.blur();
 }
 

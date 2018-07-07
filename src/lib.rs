@@ -61,6 +61,12 @@ pub fn set_p1_input(keystate: u8) {
 }
 
 #[wasm_bindgen]
+pub fn set_p2_input(keystate: u8) {
+  let mut nes = NES.lock().expect("wat");
+  nes.p2_input = keystate;
+}
+
+#[wasm_bindgen]
 pub fn set_audio_samplerate(sample_rate: u32) {
   let mut nes = NES.lock().expect("wat");
   nes.apu.sample_rate = sample_rate as u64;
