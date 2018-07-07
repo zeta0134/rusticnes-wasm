@@ -91,6 +91,7 @@ body {
   background-color: #7F7F7F;
   color: #74403C;
   text-decoration: none;
+  text-transform: uppercase;
   cursor: pointer;
 }
 
@@ -151,6 +152,7 @@ div.black_stripe {
   width: 100%;
   height: 100%;
   padding-top: 0px;
+  background-color: black;
 }
 
 #playfield div.canvas_container {
