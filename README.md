@@ -2,6 +2,8 @@
 
 A web based interface for [RusticNES](https://github.com/zeta0134/rusticnes-core), running on Web Assembly for sweet retro action in the browser. Includes a basic web shell to operate the emulator, and relies on [wasm-bindgen](https://github.com/rustwasm/wasm-bindgen) to simplify the interface between the emulator core and the JavaScript UI. This is a reasonably early work in progress, expect bugs!
 
+A live demo can be found here: [http://rusticnes.reploid.cafe/wasm/](http://rusticnes.reploid.cafe/wasm/)
+
 ## Building
 
 First, install the wasm32-unknown-unknown target. As of this writing, this is only available in rust nightly, so install that too as the build script expects it:
@@ -18,7 +20,7 @@ cargo install wasm-bindgen-cli
 export PATH=$PATH:~/.cargo/bin
 ```
 
-Run the `./build.sh` script in the main folder. Afterwards, for Firefox you should be able to open `index.html` and run the emulator. For Chrome, you'll need to host the compiled assets on a (possibly local) webserver first, as Chrome will not permit the project to load the .wasm files from the file:// protocol.
+Finally, run the `./build.sh` script in the main folder. Afterwards, for Firefox you should be able to open `index.html` and run the emulator. For Chrome, you'll need to host the compiled assets on a (possibly local) webserver first, as Chrome will not permit the project to load the .wasm files from the file:// protocol.
 
 ## Usage
 
