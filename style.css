@@ -18,6 +18,7 @@ body {
   min-height: 100%;
   margin-left: auto;
   margin-right: auto;
+  position: relative;
 }
 
 #header {
@@ -137,6 +138,7 @@ div.black_stripe {
 .tab_content {
   display: none;
   color: #dddddd;
+  margin-bottom: 100px;
 }
 
 .tab_content.active {
@@ -221,4 +223,26 @@ input#file-loader {
   color: #77221A;
   font-weight: bold;
   text-transform: uppercase;
+}
+
+#footer {
+  position: absolute;
+  bottom: 0px;
+  height: 40px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  padding-left: 52px;
+  background-color: #080808;
+  color: #808080;
+  text-align: center;
+}
+
+#footer a {
+  color: #808080;
+  text-decoration: none;
+}
+
+#footer a:hover {
+  text-decoration: underline;
 }
