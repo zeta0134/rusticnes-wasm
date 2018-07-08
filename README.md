@@ -20,7 +20,7 @@ cargo install wasm-bindgen-cli
 export PATH=$PATH:~/.cargo/bin
 ```
 
-Finally, run the `./build.sh` script in the main folder. Afterwards, for Firefox you should be able to open `index.html` and run the emulator. For Chrome, you'll need to host the compiled assets on a (possibly local) webserver first, as Chrome will not permit the project to load the .wasm files from the file:// protocol.
+Finally, run the `./build.sh` script in the main folder. Afterwards, for Firefox you should be able to open `public/index.html` and run the emulator. For Chrome, you'll need to host the "public" folder on a (possibly local) webserver first, as Chrome will not permit the project to load the .wasm files from the file:// protocol.
 
 ## Usage
 
@@ -55,4 +55,4 @@ Several technologies involved in this project are moving targets, not the least 
 
 If you'd like to debug the emulator in more detail, right now the [RusticNES-SDL](https://github.com/zeta0134/rusticnes-sdl) frontend is much more mature, and supports SRAM saving and many debug features. You should give it a try, as both shells use the same [rusticnes-core](https://github.com/zeta0134/rusticnes-core) backend. Emulation accuracy should be identical between the various frontends.
 
-Feel free to distribute this emulator freely! I'll get proper license terms figured out eventually, but it's open source of course, I mostly ask for common courtesy and respect. Fork, modify, extend, and have fun with it! However, please do be careful with regards to copyright law. The emulator will play any ROM, even commercial ROMs, but this does not give you the right to distribute those ROMs on your personal website. Please obey the local laws in your country / state, and make sure to give Nintendo and other game publishers your support by buying their current titles and Virtual Console releases.
+Feel free to distribute this emulator freely! I'll get proper license terms figured out eventually, but it's open source of course, I mostly ask for common courtesy and respect. Fork, modify, extend, and have fun with it! However, please do be respectful of copyright laws. The emulator will play any ROM, even commercial ROMs, but this does not give you the right to distribute those ROMs on your personal website. Please obey the local laws in your country / state, and if you can, be sure to give Nintendo and other game publishers your support by buying their current titles and Virtual Console releases.
