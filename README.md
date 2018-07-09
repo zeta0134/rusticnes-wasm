@@ -24,9 +24,9 @@ Finally, run the `./build.sh` script in the main folder. Afterwards, for Firefox
 
 ## Usage
 
-Use the "Load" button to open up a `.nes` file from your computer. Alternately, you can pass in a query string: `?cartridge=game.nes`. This is read as a standard URL, so paths relative to the index page work, as do fully qualified URLs that point to a valid `.nes` file. Note that `.zip` and other archives are not supported. Please be sure to follow any applicable laws in your country. Unless you are distributing a homebrew game that you wrote, I would not recommend hosting ROMs alongside the emulator if you make your build public.
+Use the "Load" button to open up a `.nes` file from your computer. Alternately, you can pass in a query string: `?cartridge=game.nes`. This is read as a standard URL, so paths relative to the index page work, as do fully qualified URLs that point to a valid `.nes` file. Note that `.zip` and other archives are not supported. 
 
-Once loaded, emulation begins immediately, and the emulator will try to maintain 60 FPS, the success of which depends on how powerful your computer, tablet, or phone is. You may enter fullscreen mode by double-clicking on the game screen. Gamepad controls may be remapped, and the defaults are as follows:
+The emulator will try to maintain 60 FPS, the success of which depends on how powerful your computer, tablet, or phone is. You may enter fullscreen mode by double-clicking on the game screen. Gamepad controls default to the following, and may be remapped:
 
 ```
 D-Pad: Arrow Keys
@@ -55,4 +55,4 @@ Several technologies involved in this project are moving targets, not the least 
 
 If you'd like to debug the emulator in more detail, right now the [RusticNES-SDL](https://github.com/zeta0134/rusticnes-sdl) frontend is much more mature, and supports SRAM saving and many debug features. You should give it a try, as both shells use the same [rusticnes-core](https://github.com/zeta0134/rusticnes-core) backend. Emulation accuracy should be identical between the various frontends.
 
-Feel free to distribute this emulator freely! I'll get proper license terms figured out eventually, but it's open source of course, I mostly ask for common courtesy and respect. Fork, modify, extend, and have fun with it! However, please do be respectful of copyright laws. The emulator will play any ROM, even commercial ROMs, but this does not give you the right to distribute those ROMs on your personal website. Please obey the local laws in your country / state, and if you can, be sure to give Nintendo and other game publishers your support by buying their current titles and Virtual Console releases.
+Feel free to distribute this emulator freely! I mostly ask for common courtesy and respect. Fork, modify, extend, and have fun with it! However, please do be respectful of copyright laws. The emulator will play almost any game, even commercial game, but this does not give you the right to distribute those game files on your personal website. Please obey the local laws in your country / state, and if you can, be sure to give Nintendo and other publishers your support by buying their current titles and Virtual Console releases. Unless you are distributing a homebrew game that you wrote, I would not recommend hosting game files alongside the emulator if you choose make your build public.
