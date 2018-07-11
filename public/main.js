@@ -9,7 +9,7 @@
 // tweaked slightly, and you can consult https://github.com/rustwasm/wasm-bindgen
 // for more information.
 
-const { load_rom, run_until_vblank, get_screen_pixels, set_p1_input, set_p2_input, set_audio_samplerate, audio_buffer_full, get_audio_buffer } = wasm_bindgen;
+const { load_rom, run_until_vblank, get_screen_pixels, set_p1_input, set_p2_input, set_audio_samplerate, audio_buffer_full, get_audio_buffer, get_sram, set_sram, has_sram } = wasm_bindgen;
 
 var keys = [0,0];
 var remap_key = false;
@@ -101,8 +101,70 @@ window.addEventListener('keyup', function(event) {
   }
 });
 
+// CRC32 checksum generating functions, yanked from this handy stackoverflow post and modified to work with arrays:
+// https://stackoverflow.com/questions/18638900/javascript-crc32
+// Used to identify .nes files semi-uniquely, for the purpose of saving SRAM
+var makeCRCTable = function(){
+    var c;
+    var crcTable = [];
+    for(var n =0; n < 256; n++){
+        c = n;
+        for(var k =0; k < 8; k++){
+            c = ((c&1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+        }
+        crcTable[n] = c;
+    }
+    return crcTable;
+}
+
+var crc32 = function(byte_array) {
+    var crcTable = window.crcTable || (window.crcTable = makeCRCTable());
+    var crc = 0 ^ (-1);
+
+    for (var i = 0; i < byte_array.length; i++ ) {
+        crc = (crc >>> 8) ^ crcTable[(crc ^ byte_array[i]) & 0xFF];
+    }
+
+    return (crc ^ (-1)) >>> 0;
+};
+
+var game_checksum = -1;
+
+function load_sram() {
+  if (has_sram()) {
+    try {
+      var sram_str = window.localStorage.getItem(game_checksum);
+      if (sram_str) {
+        var sram = JSON.parse(sram_str);
+        set_sram(sram);        
+        console.log("SRAM Loaded!", game_checksum);
+      }
+    } catch(e) {
+      console.log("Local Storage is probably unavailable! SRAM saving and loading will not work.");
+    }
+  }
+}
+
+function save_sram() {
+  if (has_sram()) {
+    try {
+      var sram_uint8 = get_sram();
+      // Make it a normal array
+      var sram = [];
+      for (var i = 0; i < sram_uint8.length; i++) {
+        sram[i] = sram_uint8[i];
+      }
+      window.localStorage.setItem(game_checksum, JSON.stringify(sram));
+      console.log("SRAM Saved!", game_checksum);
+    } catch(e) {
+      console.log("Local Storage is probably unavailable! SRAM saving and loading will not work.");
+    }
+  }
+}
+
 var start_time = 0;
 var current_frame = 0;
+var sram_delay = 600;
 
 function gameLoop() {
   set_p1_input(keys[1]);
@@ -138,6 +200,12 @@ function gameLoop() {
   ctx.imageSmoothingEnabled = false;
   //ctx.drawImage(canvas, 0, 0, 2304, 2160);
   requestAnimationFrame(gameLoop);
+
+  sram_delay = sram_delay - 1;
+  if (sram_delay <= 0) {
+    save_sram();
+    sram_delay = 600;
+  }
 }
 
 window.addEventListener("click", function() {
@@ -146,6 +214,9 @@ window.addEventListener("click", function() {
 });
 
 function load_cartridge_by_url(url) {
+  if (game_checksum != -1) {
+    save_sram();
+  }
   var rawFile = new XMLHttpRequest();
   rawFile.overrideMimeType("application/octet-stream");
   rawFile.open("GET", url, true);
@@ -161,6 +232,8 @@ function load_cartridge_by_url(url) {
       console.log("Set sample rate to: ", audio_sample_rate);
       start_time = Date.now();
       current_frame = 0;
+      game_checksum = crc32(cart_data);
+      load_sram();
       requestAnimationFrame(gameLoop);
     }
   }
@@ -168,6 +241,9 @@ function load_cartridge_by_url(url) {
 }
 
 function load_cartridge_by_file(e) {
+  if (game_checksum != -1) {
+    save_sram();
+  }
   var file = e.target.files[0];
   if (!file) {
     return;
@@ -179,6 +255,8 @@ function load_cartridge_by_file(e) {
     set_audio_samplerate(audio_sample_rate);
     start_time = Date.now();
     current_frame = 0;
+    game_checksum = crc32(cart_data);
+    load_sram();
     requestAnimationFrame(gameLoop);
   }
   reader.readAsArrayBuffer(file);

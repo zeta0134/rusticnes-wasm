@@ -84,3 +84,21 @@ pub fn get_audio_buffer() -> Vec<i16> {
   nes.apu.buffer_full = false;
   return nes.apu.output_buffer.to_owned();
 }
+
+#[wasm_bindgen]
+pub fn get_sram() -> Vec<u8> {
+  let mut nes = NES.lock().expect("wat");
+  return nes.sram().to_owned();
+}
+
+#[wasm_bindgen]
+pub fn set_sram(sram: Vec<u8>) {
+  let mut nes = NES.lock().expect("wat");
+  nes.set_sram(sram);
+}
+
+#[wasm_bindgen]
+pub fn has_sram() -> bool {
+  let nes = NES.lock().expect("wat");
+  return nes.mapper.has_sram();
+}
