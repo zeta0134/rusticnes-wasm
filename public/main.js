@@ -111,6 +111,7 @@ var current_frame = 0;
 var sram_delay = 600;
 
 function gameLoop() {
+  updateGamepads();
   set_p1_input(keys[1]);
   set_p2_input(keys[2]);
 
