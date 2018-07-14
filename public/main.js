@@ -293,6 +293,8 @@ function runApp() {
   document.addEventListener("webkitfullscreenchange", handleFullscreenSwitch);
   document.addEventListener("mozfullscreenchange", handleFullscreenSwitch);
   document.addEventListener("MSFullscreenChange", handleFullscreenSwitch);
+
+  loadInputConfig();
 }
 
 // Load and instantiate the wasm file, and we specify the source of the wasm

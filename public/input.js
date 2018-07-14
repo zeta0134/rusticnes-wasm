@@ -29,6 +29,7 @@ window.addEventListener('keydown', function(event) {
     }
     remap_key = false;
     displayButtonMappings();
+    saveInputConfig();
     return;
   }
   for (var c = 1; c <= 2; c++) {
@@ -116,6 +117,7 @@ function gamepadDown(button_name) {
     controller_padmaps[remap_slot][remap_index] = button_name;
     remap_key = false;
     displayButtonMappings();
+    saveInputConfig();
     return;
   }
   for (var c = 1; c <= 2; c++) {
@@ -154,6 +156,7 @@ function displayButtonMappings() {
 }
 
 function remapButton() {
+  displayButtonMappings();
   this.classList.add("remapping");
   this.innerHTML = "..."
   remap_key = true;
@@ -168,4 +171,33 @@ function initializeButtonMappings() {
   buttons.forEach(function(button) {
     button.addEventListener("click", remapButton);
   });
+}
+
+function saveInputConfig() {
+  try {
+    window.localStorage.setItem("keyboard_1", JSON.stringify(controller_keymaps[1]));
+    window.localStorage.setItem("keyboard_2", JSON.stringify(controller_keymaps[2]));
+    window.localStorage.setItem("gamepad_1", JSON.stringify(controller_padmaps[1]));
+    window.localStorage.setItem("gamepad_2", JSON.stringify(controller_padmaps[2]));
+    console.log("Input Config Saved!");
+  } catch(e) {
+    console.log("Local Storage is probably unavailable! Input configuration will not persist.");
+  }
+}
+
+function loadInputConfig() {
+  try {
+    var keyboard_1 = window.localStorage.getItem("keyboard_1");
+    if (keyboard_1) { controller_keymaps[1] = JSON.parse(keyboard_1); }
+    var keyboard_2 = window.localStorage.getItem("keyboard_2");
+    if (keyboard_2) { controller_keymaps[2] = JSON.parse(keyboard_2); }
+    var gamepad_1 = window.localStorage.getItem("gamepad_1");
+    if (gamepad_1) { controller_padmaps[1] = JSON.parse(gamepad_1); }
+    var gamepad_2 = window.localStorage.getItem("gamepad_2");
+    if (gamepad_2) { controller_padmaps[2] = JSON.parse(gamepad_2); }
+    console.log("Input Config Loaded!");
+    displayButtonMappings();
+  } catch(e) {
+    console.log("Local Storage is probably unavailable! Input configuration will not persist.");
+  }
 }
