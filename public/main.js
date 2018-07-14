@@ -11,11 +11,6 @@
 
 const { load_rom, run_until_vblank, get_screen_pixels, set_p1_input, set_p2_input, set_audio_samplerate, audio_buffer_full, get_audio_buffer, get_sram, set_sram, has_sram } = wasm_bindgen;
 
-var keys = [0,0];
-var remap_key = false;
-var remap_index = 0;
-var remap_slot = 1;
-
 var audio_buffer_size = 4096;
 var audio_sample_rate = 44100;
 var last_sample = 0;
@@ -49,57 +44,6 @@ script_processor.onaudioprocess = function(e) {
   }
 }
 script_processor.connect(audio_context.destination);
-
-var controller_keymaps = [];
-controller_keymaps[1] = [
-"z",
-"x",
-"Shift",
-"Enter",
-"ArrowUp",
-"ArrowDown",
-"ArrowLeft",
-"ArrowRight"];
-
-controller_keymaps[2] = [
-"-",
-"-",
-"-",
-"-",
-"-",
-"-",
-"-",
-"-"];
-
-window.addEventListener('keydown', function(event) {
-  if (remap_key) {
-    if (event.key != "Escape") {
-      controller_keymaps[remap_slot][remap_index] = event.key;
-    } else {
-      controller_keymaps[remap_slot][remap_index] = "-";
-    }
-    remap_key = false;
-    displayButtonMappings();
-    return;
-  }
-  for (var c = 1; c <= 2; c++) {
-    for (var i = 0; i < 8; i++) {
-      if (event.key == controller_keymaps[c][i]) {
-        keys[c] = keys[c] | (0x1 << i);
-      }
-    }
-  }
-});
-
-window.addEventListener('keyup', function(event) {
-  for (var c = 1; c <= 2; c++) {
-    for (var i = 0; i < 8; i++) {
-      if (event.key == controller_keymaps[c][i]) {
-        keys[c] = keys[c] & ~(0x1 << i);
-      }
-    }
-  }
-});
 
 // CRC32 checksum generating functions, yanked from this handy stackoverflow post and modified to work with arrays:
 // https://stackoverflow.com/questions/18638900/javascript-crc32
@@ -279,33 +223,6 @@ function switchToTab() {
   this.classList.add("active");
   tab = document.getElementById(this.getAttribute("name"));
   tab.classList.add("active");
-}
-
-function displayButtonMappings() {
-  var buttons = document.querySelectorAll("#configure_input button");
-  buttons.forEach(function(button) {
-    var key_index = button.getAttribute("data-key");
-    var key_slot = button.getAttribute("data-slot");
-    button.innerHTML = controller_keymaps[key_slot][key_index];
-    button.classList.remove("remapping");
-  });
-}
-
-function remapButton() {
-  this.classList.add("remapping");
-  this.innerHTML = "..."
-  remap_key = true;
-  remap_index = this.getAttribute("data-key");
-  remap_slot = this.getAttribute("data-slot");
-  this.blur();
-}
-
-function initializeButtonMappings() {
-  displayButtonMappings();
-  var buttons = document.querySelectorAll("#configure_input button");
-  buttons.forEach(function(button) {
-    button.addEventListener("click", remapButton);
-  });
 }
 
 function enterFullscreen() {
