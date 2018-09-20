@@ -2,7 +2,7 @@
 
 A web based interface for [RusticNES](https://github.com/zeta0134/rusticnes-core), running on Web Assembly for sweet retro action in the browser. Includes a basic web shell to operate the emulator, and relies on [wasm-bindgen](https://github.com/rustwasm/wasm-bindgen) to simplify the interface between the emulator core and the JavaScript UI. This is a reasonably early work in progress, expect bugs!
 
-A live demo can be found [here]((http://rusticnes.reploid.cafe/wasm/?cartridge=super-bat-puncher.nes)), running the AWESOME homebrew [Super Bat Puncher](http://morphcat.de/superbatpuncher/), hosted with permission from [Morphcat Games](http://morphcat.de/) whom you should totally check out.
+A live demo can be found [here](http://rusticnes.reploid.cafe/wasm/?cartridge=super-bat-puncher.nes), running the AWESOME homebrew [Super Bat Puncher](http://morphcat.de/superbatpuncher/), hosted with permission from [Morphcat Games](http://morphcat.de/) whom you should totally check out.
 
 ## Building
 
