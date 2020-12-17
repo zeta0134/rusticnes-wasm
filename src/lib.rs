@@ -1,5 +1,3 @@
-#![feature(proc_macro, wasm_custom_section, wasm_import_module)]
-
 #[macro_use]
 extern crate lazy_static;
 extern crate rusticnes_core;
