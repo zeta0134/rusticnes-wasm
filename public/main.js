@@ -172,7 +172,7 @@ function gameLoop() {
 
   // Draw all windows
   let active_tab = document.querySelector(".tab_content.active").id;
-  if (active_tab == "audio_visualizer") {
+  if (active_tab == "jam") {
     draw_window("#jam_pixels", screen_pixels, draw_screen_pixels, 256, 240);
     draw_window("#apu_window", apu_raw_pixels, draw_apu_window, 256, 500);
     draw_window("#piano_roll_window", piano_roll_raw_pixels, draw_piano_roll_window, 256, 240);
@@ -249,11 +249,23 @@ function clearTabs() {
   });
 }
 
-function switchToTab() {
-  clearTabs();
-  this.classList.add("active");
-  tab = document.getElementById(this.getAttribute("name"));
-  tab.classList.add("active");
+function switchToTab(tab_name) {
+  tab_elements = document.getElementsByName(tab_name);
+  if (tab_elements.length == 1)  {
+    clearTabs();
+    tab_elements[0].classList.add("active");
+    content_element = document.getElementById(tab_name);
+    content_element.classList.add("active");
+  }
+
+
+  //this.classList.add("active");
+  //tab = document.getElementById(this.getAttribute("name"));
+  //tab.classList.add("active");
+}
+
+function clickTab() {
+  switchToTab(this.getAttribute("name")); 
 }
 
 function enterFullscreen() {
@@ -309,11 +321,14 @@ function runApp() {
   if (params.get("cartridge")) {
     load_cartridge_by_url(params.get("cartridge"));
   }
+  if (params.get("tab")) {
+    switchToTab(params.get("tab"));
+  }
   document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);
   
   var buttons = document.querySelectorAll("#main_menu button");
   buttons.forEach(function(button) {
-    button.addEventListener("click", switchToTab);
+    button.addEventListener("click", clickTab);
   });
 
   initializeButtonMappings();
