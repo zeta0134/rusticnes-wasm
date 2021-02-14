@@ -165,7 +165,11 @@ div.black_stripe {
   margin-right: auto;
 }
 
-#playfield div.canvas_container img.overlay {
+#audio_visualizer div.canvas_container {
+  position: relative;
+}
+
+div.canvas_container img.overlay {
   display: block;
   position: absolute;
   top: 0px;
