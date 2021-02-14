@@ -174,7 +174,7 @@ div.black_stripe {
   height: 100%;
 }
 
-canvas#pixels {
+canvas {
   width: 100%;
   height: 100%;
 
@@ -196,7 +196,12 @@ input#file-loader {
 
 .flex_columns {
   display: flex;
-  display-direction: row;
+  flex-direction: row;
+}
+
+.flex_rows {
+  display: flex;
+  flex-direction: column;
 }
 
 .flex_columns div {

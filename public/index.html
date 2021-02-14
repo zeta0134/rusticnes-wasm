@@ -19,6 +19,7 @@
       <li><button name="playfield" class="active">Play</button></li>
       <li><label for="file-loader">Load</label><input type="file" id="file-loader" name="file-loader" /></li>
       <li><button name="configure_input">Input</button></li>
+      <li><button name="audio_visualizer">Jam</button></li>
     </ul>
     <div class="black_stripe"></div>
   </div>
@@ -56,6 +57,25 @@
             <tr><td>Left  </td><td><button id="p2_left"   data-controller="standard" data-slot="2" data-key="6"></button></td></tr>
             <tr><td>Right </td><td><button id="p2_right"  data-controller="standard" data-slot="2" data-key="7"></button></td></tr>
           </table>
+        </div>
+      </div>
+    </div>
+    <div class="tab_content" id="audio_visualizer">
+      <div class="apu_container">
+        <div class="flex_columns">
+          <div class="flex_rows">
+            <div>
+              <canvas id="jam_pixels" width="256" height="240"></canvas>
+            </div>
+            <div>
+              <canvas id="apu_window" width="256" height="500"></canvas>
+            </div>
+          </div>
+          <div>
+            <div class="piano_roll_container" style="width: 512px; height: 480px;">
+              <canvas id="piano_roll_window" width="256" height="240"></canvas>
+            </div>
+          </div>
         </div>
       </div>
     </div>

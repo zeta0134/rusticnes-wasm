@@ -13,6 +13,8 @@ use wasm_bindgen::prelude::*;
 use rusticnes_ui_common::application::RuntimeState;
 use rusticnes_ui_common::events::Event;
 use rusticnes_ui_common::apu_window::ApuWindow;
+use rusticnes_ui_common::piano_roll_window::PianoRollWindow;
+
 use rusticnes_ui_common::panel::Panel;
 
 /* There is no "main" scope, so our application globals need to be actual globals.
@@ -22,6 +24,7 @@ use rusticnes_ui_common::panel::Panel;
 lazy_static! {
     static ref RUNTIME: Mutex<RuntimeState> = Mutex::new(RuntimeState::new());
     static ref APU_WINDOW: Mutex<ApuWindow> = Mutex::new(ApuWindow::new());
+    static ref PIANO_ROLL_WINDOW: Mutex<PianoRollWindow> = Mutex::new(PianoRollWindow::new());
 }
 
 pub fn dispatch_event(event: Event) -> Vec<Event> {
@@ -29,9 +32,11 @@ pub fn dispatch_event(event: Event) -> Vec<Event> {
 
   let mut runtime = RUNTIME.lock().expect("wat");
   let mut apu_window = APU_WINDOW.lock().expect("wat");
+  let mut piano_roll_window = PIANO_ROLL_WINDOW.lock().expect("wat");
   
   // windows get an immutable reference to the runtime
   responses.extend(apu_window.handle_event(&runtime, event.clone()));
+  responses.extend(piano_roll_window.handle_event(&runtime, event.clone()));
 
   // ... but RuntimeState needs a mutable reference to itself
   responses.extend(runtime.handle_event(event.clone()));
@@ -71,11 +76,10 @@ pub fn update_windows() {
 }
 
 #[wasm_bindgen]
-pub fn get_screen_pixels() -> Vec<u8> {
+pub fn draw_screen_pixels(pixels: &mut [u8]) {
   let runtime = RUNTIME.lock().expect("wat");
   let nes = &runtime.nes;
 
-  let mut pixels = vec![0u8; 256*240*4];
   for x in 0 .. 256 {
     for y in 0 .. 240 {
       let palette_index = ((nes.ppu.screen[y * 256 + x]) as usize) * 3;
@@ -85,11 +89,23 @@ pub fn get_screen_pixels() -> Vec<u8> {
       pixels[((y * 256 + x) * 4) + 3] = 255;
     }
   }
-
-  return pixels;
 }
 
+#[wasm_bindgen]
+pub fn draw_apu_window(dest: &mut [u8]) {
+  let runtime = RUNTIME.lock().expect("wat");
+  let mut apu_window = APU_WINDOW.lock().expect("wat");
+  resolve_events(apu_window.handle_event(&runtime, Event::RequestFrame));
+  dest.clone_from_slice(&apu_window.active_canvas().buffer[0..(256*500*4)]);
+}
 
+#[wasm_bindgen]
+pub fn draw_piano_roll_window(dest: &mut [u8]) {
+  let runtime = RUNTIME.lock().expect("wat");
+  let mut piano_roll_window = PIANO_ROLL_WINDOW.lock().expect("wat");
+  resolve_events(piano_roll_window.handle_event(&runtime, Event::RequestFrame));
+  dest.clone_from_slice(&piano_roll_window.active_canvas().buffer);
+}
 
 #[wasm_bindgen]
 pub fn set_p1_input(keystate: u8) {

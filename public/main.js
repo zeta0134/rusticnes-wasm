@@ -9,7 +9,19 @@
 // tweaked slightly, and you can consult https://github.com/rustwasm/wasm-bindgen
 // for more information.
 
-const { load_rom, run_until_vblank, get_screen_pixels, set_p1_input, set_p2_input, set_audio_samplerate, audio_buffer_full, get_audio_buffer, get_sram, set_sram, has_sram } = wasm_bindgen;
+const { 
+  load_rom, 
+  run_until_vblank,   
+  set_p1_input, 
+  set_p2_input, 
+  set_audio_samplerate, 
+  audio_buffer_full, 
+  get_audio_buffer, 
+  get_sram, set_sram, 
+  has_sram, update_windows, 
+  draw_apu_window, 
+  draw_piano_roll_window,
+  draw_screen_pixels } = wasm_bindgen;
 
 var audio_buffer_size = 4096;
 var audio_sample_rate = 44100;
@@ -110,6 +122,19 @@ var start_time = 0;
 var current_frame = 0;
 var sram_delay = 600;
 
+var screen_pixels = new Uint8ClampedArray(256*240*4);
+var apu_raw_pixels = new Uint8ClampedArray(256*500*4);
+var piano_roll_raw_pixels = new Uint8ClampedArray(256*240*4);
+
+function draw_window(id, pixel_array, rust_draw_func, width, height) {
+  canvas = document.querySelector(id);
+  rust_draw_func(pixel_array);
+  image_data = new ImageData(pixel_array, width, height);
+  ctx = canvas.getContext("2d")
+  ctx.putImageData(image_data, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+}
+
 function gameLoop() {
   updateGamepads();
   set_p1_input(keys[1]);
@@ -122,13 +147,14 @@ function gameLoop() {
     start_time = Date.now();
     current_frame = 0;
     run_until_vblank();
+    update_windows()
   } else {
     while (current_frame < target_frame) {
       run_until_vblank();
+      update_windows()
       current_frame += 1;
     }
   }
-  pixels = get_screen_pixels();
   if (audio_buffer_full()) {
     audio_buffer = get_audio_buffer();
     if (nes_audio_buffer.length < audio_buffer_size * 2) { 
@@ -138,19 +164,23 @@ function gameLoop() {
     }
   }
 
-  canvas = document.querySelector('#pixels');
-  image_data = new ImageData(new Uint8ClampedArray(pixels), 256, 240);
-  ctx = canvas.getContext("2d")
-  ctx.putImageData(image_data, 0, 0);
-  ctx.imageSmoothingEnabled = false;
-  //ctx.drawImage(canvas, 0, 0, 2304, 2160);
-  requestAnimationFrame(gameLoop);
-
   sram_delay = sram_delay - 1;
   if (sram_delay <= 0) {
     save_sram();
     sram_delay = 600;
   }
+
+  // Draw all windows
+  let active_tab = document.querySelector(".tab_content.active").id;
+  if (active_tab == "audio_visualizer") {
+    draw_window("#jam_pixels", screen_pixels, draw_screen_pixels, 256, 240);
+    draw_window("#apu_window", apu_raw_pixels, draw_apu_window, 256, 500);
+    draw_window("#piano_roll_window", piano_roll_raw_pixels, draw_piano_roll_window, 256, 240);
+  } else {
+    draw_window("#pixels", screen_pixels, draw_screen_pixels, 256, 240);
+  }
+
+  requestAnimationFrame(gameLoop);
 }
 
 window.addEventListener("click", function() {
