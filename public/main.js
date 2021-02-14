@@ -135,7 +135,12 @@ function draw_window(id, pixel_array, rust_draw_func, width, height) {
   ctx.imageSmoothingEnabled = false;
 }
 
+var loaded = false;
+
 function gameLoop() {
+  if (!loaded) {
+    return;
+  }
   updateGamepads();
   set_p1_input(keys[1]);
   set_p2_input(keys[2]);
@@ -169,7 +174,9 @@ function gameLoop() {
     save_sram();
     sram_delay = 600;
   }
+}
 
+function renderLoop() {
   // Draw all windows
   let active_tab = document.querySelector(".tab_content.active").id;
   if (active_tab == "jam") {
@@ -180,7 +187,7 @@ function gameLoop() {
     draw_window("#pixels", screen_pixels, draw_screen_pixels, 256, 240);
   }
 
-  requestAnimationFrame(gameLoop);
+  requestAnimationFrame(renderLoop);
 }
 
 window.addEventListener("click", function() {
@@ -209,7 +216,7 @@ function load_cartridge_by_url(url) {
       current_frame = 0;
       game_checksum = crc32(cart_data);
       load_sram();
-      requestAnimationFrame(gameLoop);
+      loaded = true;
     }
   }
   rawFile.send(null);
@@ -232,7 +239,7 @@ function load_cartridge_by_file(e) {
     current_frame = 0;
     game_checksum = crc32(cart_data);
     load_sram();
-    requestAnimationFrame(gameLoop);
+    loaded = true;
   }
   reader.readAsArrayBuffer(file);
 }
@@ -257,11 +264,6 @@ function switchToTab(tab_name) {
     content_element = document.getElementById(tab_name);
     content_element.classList.add("active");
   }
-
-
-  //this.classList.add("active");
-  //tab = document.getElementById(this.getAttribute("name"));
-  //tab.classList.add("active");
 }
 
 function clickTab() {
@@ -340,6 +342,8 @@ function runApp() {
   document.addEventListener("MSFullscreenChange", handleFullscreenSwitch);
 
   loadInputConfig();
+  requestAnimationFrame(renderLoop);
+  window.setInterval(gameLoop, 15);
 }
 
 // Load and instantiate the wasm file, and we specify the source of the wasm
