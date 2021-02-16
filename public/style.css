@@ -14,7 +14,7 @@ body {
   background-color: #000000;
   color: #FDF0F1;
   box-shadow: 0 0 5px #080808;
-  width: 980px;
+  width: 1200px;
   min-height: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -166,7 +166,14 @@ div.black_stripe {
 }
 
 #jam div.canvas_container {
+  width: 256px;
+  height: 240px;
   position: relative;
+}
+
+#jam div.piano_roll_container {
+  width: 768px;
+  height: 720px;
 }
 
 div.canvas_container img.overlay {
