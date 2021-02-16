@@ -145,7 +145,7 @@ body {
 
 #content_area {
   position: relative;
-  height: calc(100% - 66px);
+  height: calc(100% - 66px - 64px);
   overflow: auto;
 }
 
@@ -273,4 +273,30 @@ input#file-loader {
   color: #77221A;
   font-weight: bold;
   text-transform: uppercase;
+}
+
+.banner {
+  display: none;
+}
+
+.banner.active {
+  display: block;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  background-color: #111;
+  border-bottom: 2px solid #222;
+  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+
+.banner a {
+  color: #777;
+  text-decoration: none;
+}
+
+.banner a:hover {
+  color: #999;
 }

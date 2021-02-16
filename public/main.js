@@ -240,6 +240,7 @@ function load_cartridge_by_file(e) {
   reader.onload = function(e) {
     cart_data = new Uint8Array(e.target.result);
     load_cartridge(cart_data);
+    hide_banners();
   }
   reader.readAsArrayBuffer(file);
 }
@@ -317,11 +318,27 @@ function handleFullscreenSwitch() {
   }
 }
 
+function hide_banners() {
+  banner_elements = document.querySelectorAll(".banner");
+  banner_elements.forEach(function(banner) {
+    banner.classList.remove("active");
+  });
+}
+
+function display_banner(cartridge_name) {
+  hide_banners();
+  banner_elements = document.getElementsByName(cartridge_name);
+  if (banner_elements.length == 1)  {
+    banner_elements[0].classList.add("active");
+  }
+}
+
 function runApp() {
   let params = new URLSearchParams(location.search.slice(1));
   console.log("params", params);
   if (params.get("cartridge")) {
     load_cartridge_by_url(params.get("cartridge"));
+    display_banner(params.get("cartridge"));
   }
   if (params.get("tab")) {
     switchToTab(params.get("tab"));
