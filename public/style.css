@@ -125,16 +125,6 @@ body {
   box-shadow: 0px 0px 4px #FF1010;
 }
 
-div.black_stripe {
-  position: absolute;
-  top: -1px;
-  right: 50px;
-  height: 100%;
-  width: 100px;
-  background-color: #121212;
-  border-top: 1px solid #363636;
-}
-
 .tab_content {
   display: none;
   color: #dddddd;
