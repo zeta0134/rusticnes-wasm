@@ -6,16 +6,16 @@ body, html {
 }
 
 html {
-  background-color: #111111;
+  background-color: #080808;
   height: 100%;
 }
 
 body {
   background-color: #000000;
   color: #FDF0F1;
-  box-shadow: 0 0 5px #080808;
+  box-shadow: 0 0 16px #040404;
   width: 1200px;
-  min-height: 100%;
+  height: 100%;
   margin-left: auto;
   margin-right: auto;
   position: relative;
@@ -23,36 +23,29 @@ body {
 
 #header {
   position: relative;
-  background-color: #CCCBC6;
-  padding: 8px;
-  padding-left: 52px;
-  border-bottom: 1px solid #9B9B9B;
+  padding-left: 16px;
+  padding-right: 16px;
+  padding-top: 31px;
 }
 
 #header h1 {
-  color: #A93C3F;
-  font-size: 18px;
-  transform-origin: left center;
-  transform:scale(1.2,1);
+  color: #666;
+  font-size: 25px;
   margin: 0px;
   padding: 0px;
-}
-
-#header h2 {
-  color: #A93C3F;
-  text-transform: uppercase;
-  transform-origin: left center;
-  transform:scale(1.2,1);
-  font-size: 10px;
-  margin: 0px;
-  padding: 0px;
+  line-height: 25px;
+  flex-grow: 0;
 }
 
 #navbar {
+  height: 64px;
+  display: flex;
+  flex-direction: row;
   position: relative;
-  background-color: #7F7F7F;
+  background-color: #040404;
   margin-top: 0px;
-  border-top: #A9A9A9;
+  border-bottom: 2px solid #222;
+  background-image: url("wavy_grid_gradient.png");
 }
 
 #main_menu {
@@ -61,20 +54,36 @@ body {
   width: 100%;
   margin: 0px;
   padding: 0px;
+  flex-grow: 1;
+}
+
+#credits {
+  height: 20px;
+  padding-top: 40px;
+  font-size: 0.6em;
+  width: 300px;
+  text-align: right;
+  padding-right: 16px;
+  font-weight: bold;
+}
+
+#credits a {
+  color: #444;
+  text-decoration: none;
+}
+
+#credits a:hover {
+  color: #666;
 }
 
 #main_menu li {
+  padding-top: 16px;
+  height: 32px;
   display: block;
   margin: 6px;
   text-align: right;
   text-transform: uppercase;
   font-weight: bold;
-  border: 1px solid #7F7F7F;
-  border-radius: 2px;
-  box-shadow: inset 0px 0px 5px #2C2A2B;
-  padding: 2px;
-  padding-left: 3px;
-  padding-top: 3px;
 }
 
 #main_menu li button, #main_menu li label {
@@ -87,22 +96,31 @@ body {
   font-weight: bold;
   border-top: none;
   border-left: none;
-  border-right: 3px solid #585755;
-  border-bottom: 3px solid #383634;
-  background-color: #7F7F7F;
-  color: #74403C;
+  border-right: 3px solid #181818;
+  border-bottom: 3px solid #111;
+  background-color: #222;
+  color: #888;
   text-decoration: none;
   text-transform: uppercase;
   cursor: pointer;
 }
 
+#main_menu li button:hover, #main_menu li label:hover {
+  background-color: #333;
+}
+
 #main_menu li button.active {
-  background-color: #787878;
-  border-right: 1px solid #585755;
-  border-bottom: 1px solid #383634;
+  background-color: #181818;
+  border-right: 1px solid #0C0C0C;
+  border-bottom: 1px solid #080808;
+  color: #666;
   /* Transparent top-left, for offset purposes */
   border-top: 2px solid rgba(0, 0, 0, 0);
   border-left: 2px solid rgba(0, 0, 0, 0);
+}
+
+#main_menu li button.active:hover {
+  background-color: #222;
 }
 
 #main_menu #power_light {
@@ -121,14 +139,19 @@ body {
 }
 
 #main_menu #power_light #led.powered {
-  background-color: #BB0A0A;
-  box-shadow: 0px 0px 4px #FF1010;
+  background-color: #84B;
+  box-shadow: 0px 0px 4px #629;
+}
+
+#content_area {
+  position: relative;
+  height: calc(100% - 66px);
+  overflow: auto;
 }
 
 .tab_content {
   display: none;
   color: #dddddd;
-  margin-bottom: 100px;
 }
 
 .tab_content.active {
@@ -137,7 +160,9 @@ body {
 
 #playfield.active {
   display: flex;
-  padding-top: 20px;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #playfield.fullscreen {
@@ -153,6 +178,13 @@ body {
   height: 720px;
   margin-left: auto;
   margin-right: auto;
+}
+
+#jam.active {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #jam div.canvas_container {
@@ -197,7 +229,7 @@ input#file-loader {
 
 .flex_columns {
   display: flex;
-  flex-direction: row;
+  flex-direction: row;  
 }
 
 .flex_rows {
@@ -205,7 +237,19 @@ input#file-loader {
   flex-direction: column;
 }
 
-.flex_columns div {
+#jam .flex_columns {
+  justify-content: center;
+}
+
+#jam .flex_rows {
+  justify-content: center;
+}
+
+#jam .flex_columns div {
+  margin: 8px;
+}
+
+#configure_input .flex_columns div {
   margin: auto;
 }
 
@@ -229,26 +273,4 @@ input#file-loader {
   color: #77221A;
   font-weight: bold;
   text-transform: uppercase;
-}
-
-#footer {
-  position: absolute;
-  bottom: 0px;
-  height: 40px;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px;
-  padding-left: 52px;
-  background-color: #080808;
-  color: #808080;
-  text-align: center;
-}
-
-#footer a {
-  color: #808080;
-  text-decoration: none;
-}
-
-#footer a:hover {
-  text-decoration: underline;
 }

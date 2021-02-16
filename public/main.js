@@ -195,6 +195,21 @@ window.addEventListener("click", function() {
   audio_context.resume();
 });
 
+function load_cartridge(cart_data) {
+  console.log(cart_data.length);
+  load_rom(cart_data);
+  console.log("Cart data loaded?");
+  set_audio_samplerate(audio_sample_rate);
+  console.log("Set sample rate to: ", audio_sample_rate);
+  start_time = Date.now();
+  current_frame = 0;
+  game_checksum = crc32(cart_data);
+  load_sram();
+  loaded = true;
+  let power_light = document.querySelector("#power_light #led");
+  power_light.classList.add("powered");
+}
+
 function load_cartridge_by_url(url) {
   if (game_checksum != -1) {
     save_sram();
@@ -207,16 +222,7 @@ function load_cartridge_by_url(url) {
     if (rawFile.readyState === 4 && rawFile.status == "200") {
       console.log(rawFile.responseType);
       cart_data = new Uint8Array(rawFile.response);
-      console.log(cart_data.length);
-      load_rom(cart_data);
-      console.log("Cart data loaded?");
-      set_audio_samplerate(audio_sample_rate);
-      console.log("Set sample rate to: ", audio_sample_rate);
-      start_time = Date.now();
-      current_frame = 0;
-      game_checksum = crc32(cart_data);
-      load_sram();
-      loaded = true;
+      load_cartridge(cart_data);
     }
   }
   rawFile.send(null);
@@ -233,13 +239,7 @@ function load_cartridge_by_file(e) {
   var reader = new FileReader();
   reader.onload = function(e) {
     cart_data = new Uint8Array(e.target.result);
-    load_rom(cart_data);
-    set_audio_samplerate(audio_sample_rate);
-    start_time = Date.now();
-    current_frame = 0;
-    game_checksum = crc32(cart_data);
-    load_sram();
-    loaded = true;
+    load_cartridge(cart_data);
   }
   reader.readAsArrayBuffer(file);
 }
