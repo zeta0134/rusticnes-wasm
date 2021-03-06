@@ -2,6 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <link href="style.css" rel="stylesheet">
   <link href="embed.css" rel="stylesheet">
   <script src="./rusticnes_wasm.js"></script>
   <script src="./input.js"></script>
@@ -9,40 +10,13 @@
 </head>
 <body>
   <div id="navbar">
-    <div id="header">
-      <h1>RusticNES</h1>
-    </div>
     <ul id="main_menu">
       <li id="power_light"><div id="led" class=""></div></li>
       <li><button name="playfield" class="active">Play</button></li>
       <li><label for="file-loader">Load</label><input type="file" id="file-loader" name="file-loader" /></li>
       <li><button name="configure_input">Input</button></li>
     </ul>
-    <div id="credits">
-      <a href="https://github.com/zeta0134">zeta0134<a> - <a href="https://github.com/zeta0134/rusticnes-wasm">Source on Github</a>
-    </div>
-  </div>  
-  <div class="banner" name="super-bat-puncher.nes">
-    Now Playing: <a href="http://www.morphcat.de/superbatpuncher/">Super Bat Buncher</a> 
-    - <a href="http://www.morphcat.de/">Morphcat Games</a>
   </div>
-  <div class="banner" name="2a03puritans.nes">
-    Now Playing: <a href="http://rainwarrior.ca/projects/nes/2a03puritans.html">2A03 Puritans</a>
-     - Programmed by <a href="http://rainwarrior.ca/">Rainwarrior</a>, Music by <a href="https://bitpuritans.bandcamp.com/">bitpuritans</a>
-     - Album on <a href="https://bitpuritans.bandcamp.com/album/2a03-puritans">Bandcamp</a>
-     - Physical Cartridge @ <a href="http://www.infiniteneslives.com/2A03puritans.php">INFINITELIVES</a>
-  </div>
-  <div class="banner" name="pico.nes">
-    Now Playing: <a href="http://rainwarrior.ca/projects/nes/pico.html">Famicompo Pico 1</a>
-    - Programmed by <a href="http://rainwarrior.ca/">Rainwarrior</a>
-    - Album on <a href="https://famicompo.bandcamp.com/album/famicompo-pico-2014">Bandcamp</a>
-    - Physical Cartridge @ <a href="http://www.infiniteneslives.com/famicompo.php">INFINITELIVES</a>
-  </div>
-  <div class="banner" name="pico2.nes">
-    Now Playing: <a href="http://rainwarrior.ca/projects/nes/pico.html">Famicompo Pico 2</a>
-    - Programmed by <a href="http://rainwarrior.ca/">Rainwarrior</a>
-  </div>
-  
   <div id="content_area">
     <div class="tab_content active" id="playfield">
       <div class="canvas_container">
