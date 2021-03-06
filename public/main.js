@@ -313,8 +313,8 @@ function handleFullscreenSwitch() {
     var viewport = document.querySelector("#playfield");
     var canvas_container = document.querySelector("#playfield div.canvas_container");
     viewport.classList.remove("fullscreen");
-    canvas_container.style.width = "768px";
-    canvas_container.style.height = "720px";
+    canvas_container.style.width = "";
+    canvas_container.style.height = "";
   }
 }
 
