@@ -130,7 +130,7 @@ function draw_window(id, pixel_array, rust_draw_func, width, height) {
   canvas = document.querySelector(id);
   rust_draw_func(pixel_array);
   image_data = new ImageData(pixel_array, width, height);
-  ctx = canvas.getContext("2d")
+  ctx = canvas.getContext("2d", { alpha: false });
   ctx.putImageData(image_data, 0, 0);
   ctx.imageSmoothingEnabled = false;
 }
