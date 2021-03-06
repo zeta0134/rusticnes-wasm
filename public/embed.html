@@ -17,7 +17,6 @@
       <li><button name="playfield" class="active">Play</button></li>
       <li><label for="file-loader">Load</label><input type="file" id="file-loader" name="file-loader" /></li>
       <li><button name="configure_input">Input</button></li>
-      <li><button name="jam">Jam</button></li>
     </ul>
     <div id="credits">
       <a href="https://github.com/zeta0134">zeta0134<a> - <a href="https://github.com/zeta0134/rusticnes-wasm">Source on Github</a>
@@ -78,26 +77,6 @@
             <tr><td>Left  </td><td><button id="p2_left"   data-controller="standard" data-slot="2" data-key="6"></button></td></tr>
             <tr><td>Right </td><td><button id="p2_right"  data-controller="standard" data-slot="2" data-key="7"></button></td></tr>
           </table>
-        </div>
-      </div>
-    </div>
-    <div class="tab_content" id="jam">
-      <div class="apu_container">
-        <div class="flex_columns">
-          <div class="flex_rows">
-            <div class="canvas_container">
-              <canvas id="jam_pixels" width="256" height="240"></canvas>
-              <img class="overlay" src="overlay.png" />
-            </div>
-            <div>
-              <canvas id="apu_window" width="256" height="500"></canvas>
-            </div>
-          </div>
-          <div>
-            <div class="piano_roll_container">
-              <canvas id="piano_roll_window" width="256" height="240"></canvas>
-            </div>
-          </div>
         </div>
       </div>
     </div>
