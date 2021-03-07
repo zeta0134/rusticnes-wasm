@@ -126,7 +126,7 @@ pub fn set_audio_samplerate(sample_rate: u32) {
   let mut runtime = RUNTIME.lock().expect("wat");
   let nes = &mut runtime.nes;
   
-  nes.apu.sample_rate = sample_rate as u64;
+  nes.apu.set_sample_rate(sample_rate as u64);
 }
 
 #[wasm_bindgen]
