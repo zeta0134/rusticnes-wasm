@@ -29,6 +29,7 @@ lazy_static! {
 
     /* used for blitting the game window */
     static ref CRT_OVERLAY: Mutex<SimpleBuffer> = Mutex::new(SimpleBuffer::from_raw(include_bytes!("assets/overlay.png")));
+    static ref GAME_RENDER: Mutex<SimpleBuffer> = Mutex::new(SimpleBuffer::new(256, 240));
 }
 
 pub fn dispatch_event(event: Event) -> Vec<Event> {
@@ -79,12 +80,13 @@ pub fn update_windows() {
   resolve_events(events);
 }
 
-#[wasm_bindgen]
-pub fn draw_screen_pixels(pixels: &mut [u8]) {
+pub fn render_screen_pixels() {
   let runtime = RUNTIME.lock().expect("wat");
   let nes = &runtime.nes;
 
   let overlay = CRT_OVERLAY.lock().expect("wat");
+  let mut render_canvas = GAME_RENDER.lock().expect("wat");
+  let pixels = &mut render_canvas.buffer;
 
   for x in 0 .. 256 {
     for y in 0 .. 240 {
@@ -93,10 +95,17 @@ pub fn draw_screen_pixels(pixels: &mut [u8]) {
       // overlay with direct buffer reading
       pixels[pixel_offset + 0] = ((NTSC_PAL[palette_index + 0] as u16 * overlay.buffer[pixel_offset + 0] as u16) / 255) as u8;
       pixels[pixel_offset + 1] = ((NTSC_PAL[palette_index + 1] as u16 * overlay.buffer[pixel_offset + 1] as u16) / 255) as u8;
-      pixels[pixel_offset + 2] = ((NTSC_PAL[palette_index + 2] as u16 * overlay.buffer[pixel_offset + 2] as u16) / 255) as u8;      
+      pixels[pixel_offset + 2] = ((NTSC_PAL[palette_index + 2] as u16 * overlay.buffer[pixel_offset + 2] as u16) / 255) as u8;
       pixels[((y * 256 + x) * 4) + 3] = 255;
     }
   }
+}
+
+#[wasm_bindgen]
+pub fn draw_screen_pixels(pixels: &mut [u8]) {
+  render_screen_pixels();
+  let render_canvas = GAME_RENDER.lock().expect("wat");
+  pixels.clone_from_slice(&render_canvas.buffer[0..(256*240*4)]);
 }
 
 #[wasm_bindgen]
