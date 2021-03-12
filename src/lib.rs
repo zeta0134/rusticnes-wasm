@@ -16,6 +16,7 @@ use rusticnes_ui_common::apu_window::ApuWindow;
 use rusticnes_ui_common::piano_roll_window::PianoRollWindow;
 
 use rusticnes_ui_common::panel::Panel;
+use rusticnes_ui_common::drawing::SimpleBuffer;
 
 /* There is no "main" scope, so our application globals need to be actual globals.
    These will be resolved any time a JS event needs to use them; JavaScript will only
@@ -25,6 +26,9 @@ lazy_static! {
     static ref RUNTIME: Mutex<RuntimeState> = Mutex::new(RuntimeState::new());
     static ref APU_WINDOW: Mutex<ApuWindow> = Mutex::new(ApuWindow::new());
     static ref PIANO_ROLL_WINDOW: Mutex<PianoRollWindow> = Mutex::new(PianoRollWindow::new());
+
+    /* used for blitting the game window */
+    static ref CRT_OVERLAY: Mutex<SimpleBuffer> = Mutex::new(SimpleBuffer::from_raw(include_bytes!("assets/overlay.png")));
 }
 
 pub fn dispatch_event(event: Event) -> Vec<Event> {
@@ -80,12 +84,16 @@ pub fn draw_screen_pixels(pixels: &mut [u8]) {
   let runtime = RUNTIME.lock().expect("wat");
   let nes = &runtime.nes;
 
+  let overlay = CRT_OVERLAY.lock().expect("wat");
+
   for x in 0 .. 256 {
     for y in 0 .. 240 {
       let palette_index = ((nes.ppu.screen[y * 256 + x]) as usize) * 3;
-      pixels[((y * 256 + x) * 4) + 0] = NTSC_PAL[palette_index + 0];
-      pixels[((y * 256 + x) * 4) + 1] = NTSC_PAL[palette_index + 1];
-      pixels[((y * 256 + x) * 4) + 2] = NTSC_PAL[palette_index + 2];
+      let pixel_offset = (y * 256 + x) * 4;
+      // overlay with direct buffer reading
+      pixels[pixel_offset + 0] = ((NTSC_PAL[palette_index + 0] as u16 * overlay.buffer[pixel_offset + 0] as u16) / 255) as u8;
+      pixels[pixel_offset + 1] = ((NTSC_PAL[palette_index + 1] as u16 * overlay.buffer[pixel_offset + 1] as u16) / 255) as u8;
+      pixels[pixel_offset + 2] = ((NTSC_PAL[palette_index + 2] as u16 * overlay.buffer[pixel_offset + 2] as u16) / 255) as u8;      
       pixels[((y * 256 + x) * 4) + 3] = 255;
     }
   }
