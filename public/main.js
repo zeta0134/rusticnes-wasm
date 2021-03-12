@@ -243,6 +243,10 @@ function load_cartridge_by_file(e) {
     hide_banners();
   }
   reader.readAsArrayBuffer(file);
+
+  // we're done with the file loader; unfocus it, so keystrokes are captured
+  // by the game instead
+  this.blur();
 }
 
 function clearTabs() {
