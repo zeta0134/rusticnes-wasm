@@ -178,6 +178,7 @@ body {
   height: 720px;
   margin-left: auto;
   margin-right: auto;
+  overflow: hidden;
 }
 
 #jam.active {
@@ -188,14 +189,14 @@ body {
 }
 
 #jam div.canvas_container {
-  width: 256px;
-  height: 240px;
   position: relative;
+  overflow: hidden;
 }
 
 #jam div.piano_roll_container {
   width: 768px;
   height: 720px;
+  overflow: hidden;
 }
 
 div.canvas_container img.overlay {
