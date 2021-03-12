@@ -21,7 +21,9 @@ const {
   has_sram, update_windows, 
   draw_apu_window, 
   draw_piano_roll_window,
-  draw_screen_pixels } = wasm_bindgen;
+  draw_screen_pixels,
+  apu_window_click
+} = wasm_bindgen;
 
 var audio_buffer_size = 4096;
 var audio_sample_rate = 44100;
@@ -337,6 +339,10 @@ function display_banner(cartridge_name) {
   }
 }
 
+function handle_apu_window_click(e) {  
+  apu_window_click(e.offsetX, e.offsetY);
+}
+
 function runApp() {
   let params = new URLSearchParams(location.search.slice(1));
   console.log("params", params);
@@ -361,6 +367,8 @@ function runApp() {
   document.addEventListener("webkitfullscreenchange", handleFullscreenSwitch);
   document.addEventListener("mozfullscreenchange", handleFullscreenSwitch);
   document.addEventListener("MSFullscreenChange", handleFullscreenSwitch);
+
+  document.querySelector("#apu_window").addEventListener("click", handle_apu_window_click);
 
   loadInputConfig();
   requestAnimationFrame(renderLoop);

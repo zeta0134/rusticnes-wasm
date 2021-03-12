@@ -186,3 +186,14 @@ pub fn has_sram() -> bool {
   
   return nes.mapper.has_sram();
 }
+
+#[wasm_bindgen]
+pub fn apu_window_click(mx: i32, my: i32) {
+  let mut events: Vec<Event> = Vec::new();
+  let runtime = RUNTIME.lock().expect("wat");
+  let mut apu_window = APU_WINDOW.lock().expect("wat");
+  events.extend(apu_window.handle_event(&runtime, Event::MouseClick(mx, my)));
+  drop(runtime);
+  drop(apu_window);
+  resolve_events(events);
+}
