@@ -147,6 +147,14 @@ pub fn set_audio_samplerate(sample_rate: u32) {
 }
 
 #[wasm_bindgen]
+pub fn set_audio_buffersize(buffer_size: u32) {
+  let mut runtime = RUNTIME.lock().expect("wat");
+  let nes = &mut runtime.nes;
+  
+  nes.apu.set_buffer_size(buffer_size as usize);
+}
+
+#[wasm_bindgen]
 pub fn audio_buffer_full() -> bool {
   let runtime = RUNTIME.lock().expect("wat");
   let nes = &runtime.nes;

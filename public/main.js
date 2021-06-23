@@ -14,7 +14,8 @@ const {
   run_until_vblank,   
   set_p1_input, 
   set_p2_input, 
-  set_audio_samplerate, 
+  set_audio_samplerate,
+  set_audio_buffersize,
   audio_buffer_full, 
   get_audio_buffer, 
   get_sram, set_sram, 
@@ -202,6 +203,7 @@ function load_cartridge(cart_data) {
   load_rom(cart_data);
   console.log("Cart data loaded?");
   set_audio_samplerate(audio_sample_rate);
+  set_audio_buffersize(audio_buffer_size);
   console.log("Set sample rate to: ", audio_sample_rate);
   start_time = Date.now();
   current_frame = 0;
