@@ -370,7 +370,9 @@ function runApp() {
   document.addEventListener("mozfullscreenchange", handleFullscreenSwitch);
   document.addEventListener("MSFullscreenChange", handleFullscreenSwitch);
 
-  document.querySelector("#apu_window").addEventListener("click", handle_apu_window_click);
+  if (document.querySelector("#apu_window")) {
+    document.querySelector("#apu_window").addEventListener("click", handle_apu_window_click);
+  }
 
   loadInputConfig();
   requestAnimationFrame(renderLoop);
