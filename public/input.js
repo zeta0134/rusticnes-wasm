@@ -9,8 +9,8 @@ var remap_slot = 1;
 var controller_keymaps = [];
 
 controller_keymaps[1] = [
-"z",
 "x",
+"z",
 "Shift",
 "Enter",
 "ArrowUp",
