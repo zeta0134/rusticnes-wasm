@@ -32,10 +32,9 @@ lazy_static! {
     static ref GAME_RENDER: Mutex<SimpleBuffer> = Mutex::new(SimpleBuffer::new(256, 240));
 }
 
-pub fn dispatch_event(event: Event) -> Vec<Event> {
+pub fn dispatch_event(event: Event, runtime: &mut RuntimeState) -> Vec<Event> {
   let mut responses: Vec<Event> = Vec::new();
 
-  let mut runtime = RUNTIME.lock().expect("wat");
   let mut apu_window = APU_WINDOW.lock().expect("wat");
   let mut piano_roll_window = PIANO_ROLL_WINDOW.lock().expect("wat");
   
@@ -49,35 +48,45 @@ pub fn dispatch_event(event: Event) -> Vec<Event> {
   return responses;
 }
 
-pub fn resolve_events(mut events: Vec<Event>) {
+pub fn resolve_events(mut events: Vec<Event>, runtime: &mut RuntimeState) {
   while events.len() > 0 {
     let event = events.remove(0);
-    let responses = dispatch_event(event);
+    let responses = dispatch_event(event, runtime);
     events.extend(responses);
   }
 }
 
 #[wasm_bindgen]
 pub fn load_rom(cart_data: &[u8]) {
+  let mut runtime = RUNTIME.lock().expect("wat");
   let mut events: Vec<Event> = Vec::new();
   let bucket_of_nothing: Vec<u8> = Vec::new();
   let cartridge_data = cart_data.to_vec();
   events.push(Event::LoadCartridge("cartridge".to_string(), Rc::new(cartridge_data), Rc::new(bucket_of_nothing)));
-  resolve_events(events);
+  resolve_events(events, &mut runtime);
 }
 
 #[wasm_bindgen]
 pub fn run_until_vblank() {
-  let mut events: Vec<Event> = Vec::new();
-  events.push(Event::NesRunFrame);
-  resolve_events(events);
+  let mut runtime = RUNTIME.lock().expect("wat");
+  while runtime.nes.ppu.current_scanline == 242 {
+    let mut events: Vec<Event> = Vec::new();
+    events.push(Event::NesRunScanline);
+    resolve_events(events, &mut runtime);
+  }
+  while runtime.nes.ppu.current_scanline != 242 {
+    let mut events: Vec<Event> = Vec::new();
+    events.push(Event::NesRunScanline);
+    resolve_events(events, &mut runtime);
+  }
 }
 
 #[wasm_bindgen]
 pub fn update_windows() {
+  let mut runtime = RUNTIME.lock().expect("wat");
   let mut events: Vec<Event> = Vec::new();
   events.push(Event::Update);
-  resolve_events(events);
+  resolve_events(events, &mut runtime);
 }
 
 pub fn render_screen_pixels() {
@@ -110,17 +119,17 @@ pub fn draw_screen_pixels(pixels: &mut [u8]) {
 
 #[wasm_bindgen]
 pub fn draw_apu_window(dest: &mut [u8]) {
-  let runtime = RUNTIME.lock().expect("wat");
+  let mut runtime = RUNTIME.lock().expect("wat");
   let mut apu_window = APU_WINDOW.lock().expect("wat");
-  resolve_events(apu_window.handle_event(&runtime, Event::RequestFrame));
+  resolve_events(apu_window.handle_event(&runtime, Event::RequestFrame), &mut runtime);
   dest.clone_from_slice(&apu_window.active_canvas().buffer[0..(256*500*4)]);
 }
 
 #[wasm_bindgen]
 pub fn draw_piano_roll_window(dest: &mut [u8]) {
-  let runtime = RUNTIME.lock().expect("wat");
+  let mut runtime = RUNTIME.lock().expect("wat");
   let mut piano_roll_window = PIANO_ROLL_WINDOW.lock().expect("wat");
-  resolve_events(piano_roll_window.handle_event(&runtime, Event::RequestFrame));
+  resolve_events(piano_roll_window.handle_event(&runtime, Event::RequestFrame), &mut runtime);
   dest.clone_from_slice(&piano_roll_window.active_canvas().buffer);
 }
 
@@ -197,11 +206,10 @@ pub fn has_sram() -> bool {
 
 #[wasm_bindgen]
 pub fn apu_window_click(mx: i32, my: i32) {
+  let mut runtime = RUNTIME.lock().expect("wat");
   let mut events: Vec<Event> = Vec::new();
-  let runtime = RUNTIME.lock().expect("wat");
   let mut apu_window = APU_WINDOW.lock().expect("wat");
   events.extend(apu_window.handle_event(&runtime, Event::MouseClick(mx, my)));
-  drop(runtime);
   drop(apu_window);
-  resolve_events(events);
+  resolve_events(events, &mut runtime);
 }
