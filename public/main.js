@@ -127,7 +127,7 @@ var sram_delay = 600;
 
 var screen_pixels = new Uint8ClampedArray(256*240*4);
 var apu_raw_pixels = new Uint8ClampedArray(256*500*4);
-var piano_roll_raw_pixels = new Uint8ClampedArray(256*240*4);
+var piano_roll_raw_pixels = new Uint8ClampedArray(480*270*4);
 
 function draw_window(id, pixel_array, rust_draw_func, width, height) {
   canvas = document.querySelector(id);
@@ -185,7 +185,7 @@ function renderLoop() {
   if (active_tab == "jam") {
     draw_window("#jam_pixels", screen_pixels, draw_screen_pixels, 256, 240);
     draw_window("#apu_window", apu_raw_pixels, draw_apu_window, 256, 500);
-    draw_window("#piano_roll_window", piano_roll_raw_pixels, draw_piano_roll_window, 256, 240);
+    draw_window("#piano_roll_window", piano_roll_raw_pixels, draw_piano_roll_window, 480, 270);
   } else {
     draw_window("#pixels", screen_pixels, draw_screen_pixels, 256, 240);
   }
