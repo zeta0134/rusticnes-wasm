@@ -1,6 +1,7 @@
 // ========== Global Application State ==========
 
 let g_pending_frames = 0;
+let g_frames_since_last_fps_count = 0;
 let g_game_pixels = null;
 
 
@@ -30,6 +31,7 @@ worker.onmessage = function(e) {
     console.log("Got frame data! Would render here.")
     g_game_pixels = e.data.image_data;
     g_pending_frames -= 1;
+    g_frames_since_last_fps_count += 1;
   }
 }
 
@@ -42,9 +44,10 @@ async function onready() {
   // Setup UI events
   document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);
 
+  requestAnimationFrame(renderLoop);
   // run the scheduler as often as we can. It will frequently decide not to schedule things, this is fine.
   window.setInterval(schedule_frames, 1)
-  requestAnimationFrame(renderLoop);
+  window.setInterval(compute_fps, 1000);
 }
 
 // ========== Cartridge Management ==========
@@ -128,5 +131,12 @@ function hide_banners() {
   banner_elements.forEach(function(banner) {
     banner.classList.remove("active");
   });
+}
+
+// This runs *around* once per second, ish. It's fine.
+function compute_fps() {
+  let counter_element = document.querySelector("#fps-counter");
+  counter_element.innerText = "FPS: " + g_frames_since_last_fps_count;
+  g_frames_since_last_fps_count = 0;
 }
 
