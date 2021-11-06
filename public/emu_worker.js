@@ -19,8 +19,7 @@ const {
 
 let initialized = false;
 
-function load_cartridge(file_data) {
-  console.log(cart_data.length);
+function load_cartridge(cart_data) {
   load_rom(cart_data);
   //set_audio_samplerate(audio_sample_rate);
   //set_audio_buffersize(audio_buffer_size);
@@ -32,6 +31,7 @@ function echo(msg) {
 
 const rpc_functions = {
   "echo": echo,
+  "load_cartridge": load_cartridge,
 };
 
 function rpc(task, args, reply_channel) {
