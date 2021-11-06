@@ -19,19 +19,40 @@ const {
 
 let initialized = false;
 
+// TODO: The rust side of this *should* be generating appropriate error
+// messages. Can we catch those and propogate that error to the UI? That
+// would be excellent for users, right now they're just getting silent
+// failure.
 function load_cartridge(cart_data) {
   load_rom(cart_data);
   //set_audio_samplerate(audio_sample_rate);
   //set_audio_buffersize(audio_buffer_size);
 }
 
+function run_one_frame() {
+  run_until_vblank();
+  update_windows();
+}
+
 function echo(msg) {
   return "Echo: " + msg;
 }
 
+let screen_pixels = new Uint8ClampedArray(256*240*4);
+
+function get_screen_pixels() {
+  draw_screen_pixels(screen_pixels);
+  image_data = new ImageData(screen_pixels, 256, 240);
+  return image_data;
+}
+
+
+
 const rpc_functions = {
   "echo": echo,
   "load_cartridge": load_cartridge,
+  "run_one_frame": run_one_frame,
+  "get_screen_pixels": get_screen_pixels,
 };
 
 function rpc(task, args, reply_channel) {
@@ -44,6 +65,11 @@ function rpc(task, args, reply_channel) {
 function handle_message(e) {
   if (e.data.type == "rpc") {
     rpc(e.data.func, e.data.args, e.ports[0])
+  }
+  if (e.data.type == "requestFrame") {
+    run_one_frame();
+    let image_data = get_screen_pixels();
+    postMessage({"type": "deliverFrame", "image_data": image_data});
   }
 }
 

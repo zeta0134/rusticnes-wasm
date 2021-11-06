@@ -1,3 +1,9 @@
+// ========== Global Application State ==========
+
+let g_pending_frames = 0;
+let g_game_pixels = null;
+
+
 // ========== Worker Setup and Utility ==========
 
 var worker = new Worker('emu_worker.js');
@@ -20,6 +26,11 @@ worker.onmessage = function(e) {
   if (e.data.type == "init") {
     onready();
   }
+  if (e.data.type == "deliverFrame") {
+    console.log("Got frame data! Would render here.")
+    g_game_pixels = e.data.image_data;
+    g_pending_frames -= 1;
+  }
 }
 
 // ========== Main ==========
@@ -30,6 +41,10 @@ async function onready() {
 
   // Setup UI events
   document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);
+
+  // run the scheduler as often as we can. It will frequently decide not to schedule things, this is fine.
+  window.setInterval(schedule_frames, 1)
+  requestAnimationFrame(renderLoop);
 }
 
 // ========== Cartridge Management ==========
@@ -72,6 +87,38 @@ function load_cartridge_by_file(e) {
   // we're done with the file loader; unfocus it, so keystrokes are captured
   // by the game instead
   this.blur();
+}
+
+// ========== Emulator Runtime ==========
+
+async function schedule_frames() {
+  // TODO: real audio sync. The below implementation is closer to a fast-forward, and
+  // runs the emulator at rocket speed on purpose.
+  if (g_pending_frames < 10) {
+    worker.postMessage({"type": "requestFrame"});
+    g_pending_frames += 1;
+  }
+}
+
+// TESTING! Do not actually use this this way, schedule it properly.
+async function run_one_frame() {
+  canvas = document.querySelector("#pixels");
+  await rpc("run_one_frame");
+  let image_data = await rpc("get_screen_pixels");
+  ctx = canvas.getContext("2d", { alpha: false });
+  ctx.putImageData(image_data, 0, 0);
+  ctx.imageSmoothingEnabled = false;
+}
+
+function renderLoop() {
+  if (g_game_pixels != null) {
+    canvas = document.querySelector("#pixels");
+    ctx = canvas.getContext("2d", { alpha: false });
+    ctx.putImageData(g_game_pixels, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    g_game_pixels = null;
+  }
+  requestAnimationFrame(renderLoop);
 }
 
 // ========== User Interface ==========
