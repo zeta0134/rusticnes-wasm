@@ -75,14 +75,12 @@ function handle_audio_message(e) {
 // ========== Main ==========
 
 async function onready() {
-  const reply = await rpc("echo", ["Hello World!"]);
-  console.log("Got reply: ", reply);
-
   // Initialize audio context, this will also begin audio playback
   await init_audio_context();
 
   // Initialize everything else
   init_ui_events();
+  initializeButtonMappings();
 
   // Kick off the events that will drive emulation
   requestAnimationFrame(renderLoop);

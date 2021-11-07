@@ -35,10 +35,6 @@ function run_one_frame() {
   update_windows();
 }
 
-function echo(msg) {
-  return "Echo: " + msg;
-}
-
 function get_screen_pixels() {
   let raw_buffer = new ArrayBuffer(256*240*4);
   let screen_pixels = new Uint8ClampedArray(raw_buffer);
@@ -47,7 +43,6 @@ function get_screen_pixels() {
 }
 
 const rpc_functions = {
-  "echo": echo,
   "load_cartridge": load_cartridge,
   "run_one_frame": run_one_frame,
   "get_screen_pixels": get_screen_pixels,
