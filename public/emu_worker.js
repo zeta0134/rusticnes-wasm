@@ -67,6 +67,9 @@ const rpc_functions = {
   "get_apu_pixels": get_apu_pixels,
   "get_piano_roll_pixels": get_piano_roll_pixels,
   "handle_apu_window_click": handle_apu_window_click,
+  "has_sram": has_sram,
+  "get_sram": get_sram,
+  "set_sram": set_sram,
 };
 
 function rpc(task, args, reply_channel) {

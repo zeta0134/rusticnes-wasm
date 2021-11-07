@@ -7,6 +7,8 @@ let g_rendered_frames = [];
 let g_last_frame_sample_count = 44100 / 60; // Close-ish enough
 let g_audio_samples_buffered = 0;
 
+let g_game_checksum = -1;
+
 
 // ========== Worker Setup and Utility ==========
 
@@ -87,6 +89,7 @@ async function onready() {
   //window.setInterval(schedule_frames_at_top_speed, 1);
   window.setTimeout(sync_to_audio, 1);
   window.setInterval(compute_fps, 1000);
+  window.setInterval(save_sram_periodically, 10000);
 
   // Attempt to load a cartridge by URL, if one is provided
   let params = new URLSearchParams(location.search.slice(1));
@@ -126,21 +129,19 @@ function init_ui_events() {
 
 // ========== Cartridge Management ==========
 
-let game_checksum = -1;
-
 async function load_cartridge(cart_data) {
   console.log("Attempting to load cart with length: ", cart_data.length);
   await rpc("load_cartridge", [cart_data]);
   console.log("Cart data loaded?");
   
-  //game_checksum = crc32(cart_data);
-  //load_sram();
-  //let power_light = document.querySelector("#power_light #led");
-  //power_light.classList.add("powered");
+  g_game_checksum = crc32(cart_data);
+  load_sram();
+  let power_light = document.querySelector("#power_light #led");
+  power_light.classList.add("powered");
 }
 
 function load_cartridge_by_file(e) {
-  if (game_checksum != -1) {
+  if (g_game_checksum != -1) {
     save_sram();
   }
   var file = e.target.files[0];
@@ -161,7 +162,7 @@ function load_cartridge_by_file(e) {
 }
 
 function load_cartridge_by_url(url) {
-  if (game_checksum != -1) {
+  if (g_game_checksum != -1) {
     save_sram();
   }
   var rawFile = new XMLHttpRequest();
@@ -231,6 +232,71 @@ function renderLoop() {
   }
 
   requestAnimationFrame(renderLoop);
+}
+
+// ========== SRAM Management ==========
+
+// CRC32 checksum generating functions, yanked from this handy stackoverflow post and modified to work with arrays:
+// https://stackoverflow.com/questions/18638900/javascript-crc32
+// Used to identify .nes files semi-uniquely, for the purpose of saving SRAM
+var makeCRCTable = function(){
+    var c;
+    var crcTable = [];
+    for(var n =0; n < 256; n++){
+        c = n;
+        for(var k =0; k < 8; k++){
+            c = ((c&1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1));
+        }
+        crcTable[n] = c;
+    }
+    return crcTable;
+}
+
+var crc32 = function(byte_array) {
+    var crcTable = window.crcTable || (window.crcTable = makeCRCTable());
+    var crc = 0 ^ (-1);
+
+    for (var i = 0; i < byte_array.length; i++ ) {
+        crc = (crc >>> 8) ^ crcTable[(crc ^ byte_array[i]) & 0xFF];
+    }
+
+    return (crc ^ (-1)) >>> 0;
+};
+
+async function load_sram() {
+  if (await rpc("has_sram")) {
+    try {
+      var sram_str = window.localStorage.getItem(g_game_checksum);
+      if (sram_str) {
+        var sram = JSON.parse(sram_str);
+        await rpc("set_sram", [sram]);
+        console.log("SRAM Loaded!", g_game_checksum);
+      }
+    } catch(e) {
+      console.log("Local Storage is probably unavailable! SRAM saving and loading will not work.");
+    }
+  }
+}
+
+async function save_sram() {
+  if (await rpc("has_sram")) {
+    try {
+      var sram_uint8 = await rpc("get_sram", [sram]);
+      // Make it a normal array
+      var sram = [];
+      for (var i = 0; i < sram_uint8.length; i++) {
+        sram[i] = sram_uint8[i];
+      }
+      window.localStorage.setItem(g_game_checksum, JSON.stringify(sram));
+      console.log("SRAM Saved!", g_game_checksum);
+    } catch(e) {
+      console.log("Local Storage is probably unavailable! SRAM saving and loading will not work.");
+    }
+  }
+}
+
+function save_sram_periodically() {
+  save_sram();
 }
 
 // ========== User Interface ==========
