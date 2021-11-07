@@ -4,6 +4,7 @@ let g_pending_frames = 0;
 let g_frames_since_last_fps_count = 0;
 let g_rendered_frames = [];
 
+let g_last_frame_sample_count = 44100 / 60; // Close-ish enough
 let g_audio_samples_buffered = 0;
 
 
@@ -37,6 +38,7 @@ worker.onmessage = function(e) {
     if (g_audio_samples_buffered < 8192) {
       g_nes_audio_node.port.postMessage({"type": "samples", "samples": e.data.audio_buffer});
       g_audio_samples_buffered += e.data.audio_buffer.length;
+      g_last_frame_sample_count = e.data.audio_buffer.length;
     } else {
       // Audio overrun, we're running too fast! Drop these samples on the floor and bail.
       // (This can happen in fastforward mode.)
@@ -93,7 +95,7 @@ async function onready() {
   console.log("params", params);
   if (params.get("cartridge")) {
     load_cartridge_by_url(params.get("cartridge"));
-    display_banner(params.get("cartridge"));
+    //display_banner(params.get("cartridge"));
   }
 
   window.addEventListener("click", function() {
@@ -173,9 +175,16 @@ function schedule_frames_at_top_speed() {
 }
 
 function sync_to_audio() {
-  if (g_pending_frames < 10 && g_audio_samples_buffered < 2048) {
-    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2]});
-    g_pending_frames += 1;
+  // Never, for any reason, request more than 10 frames at a time. This prevents
+  // the message queue from getting flooded if the emulator can't keep up.
+  if (g_pending_frames < 10) {
+    const actual_samples = g_audio_samples_buffered;
+    const pending_samples = g_pending_frames * g_last_frame_sample_count;
+    const sample_threshold = 2048;
+    if (actual_samples + pending_samples < sample_threshold) {
+      worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2]});
+      g_pending_frames += 1;
+    }
   }
   window.setTimeout(sync_to_audio, 1);
 }
