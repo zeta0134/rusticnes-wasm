@@ -81,9 +81,10 @@ async function onready() {
   // Initialize audio context, this will also begin audio playback
   await init_audio_context();
 
-  // Setup UI events
-  document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);
+  // Initialize everything else
+  init_ui_events();
 
+  // Kick off the events that will drive emulation
   requestAnimationFrame(renderLoop);
   // run the scheduler as often as we can. It will frequently decide not to schedule things, this is fine.
   //window.setInterval(schedule_frames_at_top_speed, 1);
@@ -99,6 +100,16 @@ async function onready() {
   if (params.get("tab")) {
     switchToTab(params.get("tab"));
   }
+}
+
+function init_ui_events() {
+  // Setup UI events
+  document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);
+
+  var buttons = document.querySelectorAll("#main_menu button");
+  buttons.forEach(function(button) {
+    button.addEventListener("click", clickTab);
+  });
 
   window.addEventListener("click", function() {
     // Needed to play audio in certain browsers, notably Chrome, which restricts playback until user action.
