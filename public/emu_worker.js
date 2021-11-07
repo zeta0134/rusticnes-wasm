@@ -56,10 +56,17 @@ function get_piano_roll_pixels() {
   return raw_buffer;
 }
 
+function handle_apu_window_click(mx, my) {  
+  apu_window_click(mx, my);
+}
+
 const rpc_functions = {
   "load_cartridge": load_cartridge,
   "run_one_frame": run_one_frame,
   "get_screen_pixels": get_screen_pixels,
+  "get_apu_pixels": get_apu_pixels,
+  "get_piano_roll_pixels": get_piano_roll_pixels,
+  "handle_apu_window_click": handle_apu_window_click,
 };
 
 function rpc(task, args, reply_channel) {

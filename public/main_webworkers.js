@@ -118,6 +118,10 @@ function init_ui_events() {
   document.addEventListener("webkitfullscreenchange", handleFullscreenSwitch);
   document.addEventListener("mozfullscreenchange", handleFullscreenSwitch);
   document.addEventListener("MSFullscreenChange", handleFullscreenSwitch);
+
+  if (document.querySelector("#apu_window")) {
+    document.querySelector("#apu_window").addEventListener("click", handle_apu_window_click);
+  }
 }
 
 // ========== Cartridge Management ==========
@@ -324,4 +328,8 @@ function display_banner(cartridge_name) {
   if (banner_elements.length == 1)  {
     banner_elements[0].classList.add("active");
   }
+}
+
+function handle_apu_window_click(e) {
+  rpc("handle_apu_window_click", [e.offsetX, e.offsetY]).then();
 }
