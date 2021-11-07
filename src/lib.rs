@@ -181,6 +181,14 @@ pub fn get_audio_buffer() -> Vec<i16> {
 }
 
 #[wasm_bindgen]
+pub fn consume_audio_samples() -> Vec<i16> {
+  let mut runtime = RUNTIME.lock().expect("wat");
+  let nes = &mut runtime.nes;
+
+  return nes.apu.consume_samples();
+}
+
+#[wasm_bindgen]
 pub fn get_sram() -> Vec<u8> {
   let runtime = RUNTIME.lock().expect("wat");
   let nes = &runtime.nes;

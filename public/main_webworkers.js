@@ -4,6 +4,8 @@ let g_pending_frames = 0;
 let g_frames_since_last_fps_count = 0;
 let g_game_pixels = null;
 
+let g_audio_samples_buffered = 0;
+
 
 // ========== Worker Setup and Utility ==========
 
@@ -28,10 +30,38 @@ worker.onmessage = function(e) {
     onready();
   }
   if (e.data.type == "deliverFrame") {
-    console.log("Got frame data! Would render here.")
     g_game_pixels = e.data.image_buffer;
+    // TODO: UNBREAK THIS
     g_pending_frames -= 1;
     g_frames_since_last_fps_count += 1;
+    if (g_audio_samples_buffered < 8192) {
+      g_nes_audio_node.port.postMessage({"type": "samples", "samples": e.data.audio_buffer});
+      g_audio_samples_buffered += e.data.audio_buffer.length;
+    } else {
+      console.log("Audio overrun; are we going too fast? Samples dropped.");
+    }
+  }
+}
+
+// ========== Audio Setup ==========
+
+let g_audio_context = null;
+let g_nes_audio_node = null;
+
+async function init_audio_context() {
+  g_audio_context = new AudioContext({
+    latencyHint: 'interactive',
+    sampleRate: 44100,
+  });
+  await g_audio_context.audioWorklet.addModule('audio_processor.js');
+  g_nes_audio_node = new AudioWorkletNode(g_audio_context, 'nes-audio-processor');
+  g_nes_audio_node.connect(g_audio_context.destination);
+  g_nes_audio_node.port.onmessage = handle_audio_message;
+}
+
+function handle_audio_message(e) {
+  if (e.data.type == "samplesPlayed") {
+    g_audio_samples_buffered -= e.data.count;
   }
 }
 
@@ -40,6 +70,9 @@ worker.onmessage = function(e) {
 async function onready() {
   const reply = await rpc("echo", ["Hello World!"]);
   console.log("Got reply: ", reply);
+
+  // Initialize audio context, this will also begin audio playback
+  await init_audio_context();
 
   // Setup UI events
   document.getElementById('file-loader').addEventListener('change', load_cartridge_by_file, false);

@@ -14,7 +14,8 @@ const {
   draw_apu_window, 
   draw_piano_roll_window,
   draw_screen_pixels,
-  apu_window_click
+  apu_window_click,
+  consume_audio_samples,
 } = wasm_bindgen;
 
 let initialized = false;
@@ -66,7 +67,9 @@ function handle_message(e) {
   if (e.data.type == "requestFrame") {
     run_one_frame();
     let image_buffer = get_screen_pixels();
-    postMessage({"type": "deliverFrame", "image_buffer": image_buffer}, [image_buffer]);
+    // TODO: this isn't an ArrayBuffer, but it probably should be
+    let audio_buffer = consume_audio_samples();
+    postMessage({"type": "deliverFrame", "image_buffer": image_buffer, "audio_buffer": audio_buffer}, [image_buffer]);
   }
 }
 
