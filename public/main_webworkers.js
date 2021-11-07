@@ -90,18 +90,26 @@ async function onready() {
   window.setTimeout(sync_to_audio, 1);
   window.setInterval(compute_fps, 1000);
 
-  // Finally, attempt to load a cartridge by URL, if one is provided
+  // Attempt to load a cartridge by URL, if one is provided
   let params = new URLSearchParams(location.search.slice(1));
-  console.log("params", params);
   if (params.get("cartridge")) {
     load_cartridge_by_url(params.get("cartridge"));
-    //display_banner(params.get("cartridge"));
+    display_banner(params.get("cartridge"));
+  }
+  if (params.get("tab")) {
+    switchToTab(params.get("tab"));
   }
 
   window.addEventListener("click", function() {
     // Needed to play audio in certain browsers, notably Chrome, which restricts playback until user action.
     g_audio_context.resume();
   });
+
+  document.querySelector("#playfield").addEventListener("dblclick", enterFullscreen);
+  document.addEventListener("fullscreenchange", handleFullscreenSwitch);
+  document.addEventListener("webkitfullscreenchange", handleFullscreenSwitch);
+  document.addEventListener("mozfullscreenchange", handleFullscreenSwitch);
+  document.addEventListener("MSFullscreenChange", handleFullscreenSwitch);
 }
 
 // ========== Cartridge Management ==========
@@ -112,15 +120,9 @@ async function load_cartridge(cart_data) {
   console.log("Attempting to load cart with length: ", cart_data.length);
   await rpc("load_cartridge", [cart_data]);
   console.log("Cart data loaded?");
-  //set_audio_samplerate(audio_sample_rate);
-  //set_audio_buffersize(audio_buffer_size);
-  //console.log("Set sample rate to: ", audio_sample_rate);
   
-  //start_time = Date.now();
-  //current_frame = 0;
   //game_checksum = crc32(cart_data);
   //load_sram();
-  //loaded = true;
   //let power_light = document.querySelector("#power_light #led");
   //power_light.classList.add("powered");
 }
@@ -213,13 +215,6 @@ function renderLoop() {
 
 // ========== User Interface ==========
 
-function hide_banners() {
-  banner_elements = document.querySelectorAll(".banner");
-  banner_elements.forEach(function(banner) {
-    banner.classList.remove("active");
-  });
-}
-
 // This runs *around* once per second, ish. It's fine.
 function compute_fps() {
   let counter_element = document.querySelector("#fps-counter");
@@ -227,3 +222,90 @@ function compute_fps() {
   g_frames_since_last_fps_count = 0;
 }
 
+function clearTabs() {
+  var buttons = document.querySelectorAll("#main_menu button");
+  buttons.forEach(function(button) {
+    button.classList.remove("active");
+  });
+
+  var tabs = document.querySelectorAll("div.tab_content");
+  tabs.forEach(function(tab) {
+    tab.classList.remove("active");
+  });
+}
+
+function switchToTab(tab_name) {
+  tab_elements = document.getElementsByName(tab_name);
+  if (tab_elements.length == 1)  {
+    clearTabs();
+    tab_elements[0].classList.add("active");
+    content_element = document.getElementById(tab_name);
+    content_element.classList.add("active");
+  }
+}
+
+function clickTab() {
+  switchToTab(this.getAttribute("name")); 
+}
+
+function enterFullscreen() {
+  if (this.requestFullscreen) {
+    this.requestFullscreen();
+  } else if (this.mozRequestFullScreen) {
+    this.mozRequestFullScreen();
+  } else if (this.webkitRequestFullscreen) {
+    this.webkitRequestFullscreen();
+  }
+}
+
+function handleFullscreenSwitch() {
+  if (document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+    console.log("Entering fullscreen...");
+    // Entering fullscreen
+    var viewport = document.querySelector("#playfield");
+    viewport.classList.add("fullscreen");
+
+    setTimeout(function() {
+      var viewport = document.querySelector("#playfield");
+
+      var viewport_width = viewport.clientWidth;
+      var viewport_height = viewport.clientHeight;
+
+      var canvas_container = document.querySelector("#playfield div.canvas_container");
+      if ((viewport_width / 256) * 240 > viewport_height) {
+        var target_height = viewport_height;
+        var target_width = target_height / 240 * 256;
+        canvas_container.style.width = target_width + "px";
+        canvas_container.style.height = target_height + "px";
+      } else {
+        var target_width = viewport_width;
+        var target_height = target_width / 256 * 240;
+        canvas_container.style.width = target_width + "px";
+        canvas_container.style.height = target_height + "px";
+      }
+    }, 100);
+  } else {
+    // Exiting fullscreen
+    console.log("Exiting fullscreen...");
+    var viewport = document.querySelector("#playfield");
+    var canvas_container = document.querySelector("#playfield div.canvas_container");
+    viewport.classList.remove("fullscreen");
+    canvas_container.style.width = "";
+    canvas_container.style.height = "";
+  }
+}
+
+function hide_banners() {
+  banner_elements = document.querySelectorAll(".banner");
+  banner_elements.forEach(function(banner) {
+    banner.classList.remove("active");
+  });
+}
+
+function display_banner(cartridge_name) {
+  hide_banners();
+  banner_elements = document.getElementsByName(cartridge_name);
+  if (banner_elements.length == 1)  {
+    banner_elements[0].classList.add("active");
+  }
+}
