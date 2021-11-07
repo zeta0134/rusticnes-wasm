@@ -29,7 +29,7 @@ worker.onmessage = function(e) {
   }
   if (e.data.type == "deliverFrame") {
     console.log("Got frame data! Would render here.")
-    g_game_pixels = e.data.image_data;
+    g_game_pixels = e.data.image_buffer;
     g_pending_frames -= 1;
     g_frames_since_last_fps_count += 1;
   }
@@ -46,7 +46,7 @@ async function onready() {
 
   requestAnimationFrame(renderLoop);
   // run the scheduler as often as we can. It will frequently decide not to schedule things, this is fine.
-  window.setInterval(schedule_frames, 1)
+  window.setInterval(schedule_frames_at_top_speed, 1);
   window.setInterval(compute_fps, 1000);
 }
 
@@ -94,9 +94,7 @@ function load_cartridge_by_file(e) {
 
 // ========== Emulator Runtime ==========
 
-async function schedule_frames() {
-  // TODO: real audio sync. The below implementation is closer to a fast-forward, and
-  // runs the emulator at rocket speed on purpose.
+async function schedule_frames_at_top_speed() {
   if (g_pending_frames < 10) {
     worker.postMessage({"type": "requestFrame"});
     g_pending_frames += 1;
@@ -115,9 +113,11 @@ async function run_one_frame() {
 
 function renderLoop() {
   if (g_game_pixels != null) {
+    const typed_game_pixels = new Uint8ClampedArray(g_game_pixels);
+    image_data = new ImageData(typed_game_pixels, 256, 240);
     canvas = document.querySelector("#pixels");
     ctx = canvas.getContext("2d", { alpha: false });
-    ctx.putImageData(g_game_pixels, 0, 0);
+    ctx.putImageData(image_data, 0, 0);
     ctx.imageSmoothingEnabled = false;
     g_game_pixels = null;
   }

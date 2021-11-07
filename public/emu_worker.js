@@ -38,15 +38,12 @@ function echo(msg) {
   return "Echo: " + msg;
 }
 
-let screen_pixels = new Uint8ClampedArray(256*240*4);
-
 function get_screen_pixels() {
+  let raw_buffer = new ArrayBuffer(256*240*4);
+  let screen_pixels = new Uint8ClampedArray(raw_buffer);
   draw_screen_pixels(screen_pixels);
-  image_data = new ImageData(screen_pixels, 256, 240);
-  return image_data;
+  return raw_buffer;
 }
-
-
 
 const rpc_functions = {
   "echo": echo,
@@ -68,8 +65,8 @@ function handle_message(e) {
   }
   if (e.data.type == "requestFrame") {
     run_one_frame();
-    let image_data = get_screen_pixels();
-    postMessage({"type": "deliverFrame", "image_data": image_data});
+    let image_buffer = get_screen_pixels();
+    postMessage({"type": "deliverFrame", "image_buffer": image_buffer}, [image_buffer]);
   }
 }
 
