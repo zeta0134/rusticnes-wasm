@@ -38,7 +38,7 @@ class NesAudioProcessor extends AudioWorkletProcessor {
       // avoid a break in the audio, but it avoids ugly pops
       output.forEach(channel => {
         for (let i = 0; i < channel.length; i++) {
-          channel[i] = this.lastPlayedSample;
+          channel[i] = (this.lastPlayedSample / 37268);
         }
       })
     }
