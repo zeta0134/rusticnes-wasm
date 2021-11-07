@@ -135,7 +135,7 @@ function load_cartridge_by_file(e) {
 
 function schedule_frames_at_top_speed() {
   if (g_pending_frames < 10) {
-    worker.postMessage({"type": "requestFrame"});
+    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2]});
     g_pending_frames += 1;
   }
   window.setTimeout(schedule_frames_at_top_speed, 1);
@@ -143,7 +143,7 @@ function schedule_frames_at_top_speed() {
 
 function sync_to_audio() {
   if (g_pending_frames < 10 && g_audio_samples_buffered < 2048) {
-    worker.postMessage({"type": "requestFrame"});
+    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2]});
     g_pending_frames += 1;
   }
   window.setTimeout(sync_to_audio, 1);

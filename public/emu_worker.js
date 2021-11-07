@@ -65,6 +65,8 @@ function handle_message(e) {
     rpc(e.data.func, e.data.args, e.ports[0])
   }
   if (e.data.type == "requestFrame") {
+    set_p1_input(e.data.p1);
+    set_p2_input(e.data.p2);
     run_one_frame();
     let image_buffer = get_screen_pixels();
     // TODO: this isn't an ArrayBuffer, but it probably should be
