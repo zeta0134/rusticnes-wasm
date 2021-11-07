@@ -87,6 +87,14 @@ async function onready() {
   //window.setInterval(schedule_frames_at_top_speed, 1);
   window.setTimeout(sync_to_audio, 1);
   window.setInterval(compute_fps, 1000);
+
+  // Finally, attempt to load a cartridge by URL, if one is provided
+  let params = new URLSearchParams(location.search.slice(1));
+  console.log("params", params);
+  if (params.get("cartridge")) {
+    load_cartridge_by_url(params.get("cartridge"));
+    display_banner(params.get("cartridge"));
+  }
 }
 
 // ========== Cartridge Management ==========
@@ -129,6 +137,24 @@ function load_cartridge_by_file(e) {
   // we're done with the file loader; unfocus it, so keystrokes are captured
   // by the game instead
   this.blur();
+}
+
+function load_cartridge_by_url(url) {
+  if (game_checksum != -1) {
+    save_sram();
+  }
+  var rawFile = new XMLHttpRequest();
+  rawFile.overrideMimeType("application/octet-stream");
+  rawFile.open("GET", url, true);
+  rawFile.responseType = "arraybuffer";
+  rawFile.onreadystatechange = function() {
+    if (rawFile.readyState === 4 && rawFile.status == "200") {
+      console.log(rawFile.responseType);
+      cart_data = new Uint8Array(rawFile.response);
+      load_cartridge(cart_data);
+    }
+  }
+  rawFile.send(null);
 }
 
 // ========== Emulator Runtime ==========
