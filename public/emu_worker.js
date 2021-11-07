@@ -42,6 +42,20 @@ function get_screen_pixels() {
   return raw_buffer;
 }
 
+function get_apu_pixels() {
+  let raw_buffer = new ArrayBuffer(256*500*4);
+  let screen_pixels = new Uint8ClampedArray(raw_buffer);
+  draw_apu_window(screen_pixels);
+  return raw_buffer;
+}
+
+function get_piano_roll_pixels() {
+  let raw_buffer = new ArrayBuffer(480*270*4);
+  let screen_pixels = new Uint8ClampedArray(raw_buffer);
+  draw_piano_roll_window(screen_pixels);
+  return raw_buffer;
+}
+
 const rpc_functions = {
   "load_cartridge": load_cartridge,
   "run_one_frame": run_one_frame,
@@ -63,10 +77,44 @@ function handle_message(e) {
     set_p1_input(e.data.p1);
     set_p2_input(e.data.p2);
     run_one_frame();
-    let image_buffer = get_screen_pixels();
-    // TODO: this isn't an ArrayBuffer, but it probably should be
+
+    let outputPanels = [];
+    let transferrableBuffers = [];
+    for (let panel of e.data.panels) {
+      if (panel.id == "screen") {
+        let image_buffer = get_screen_pixels();
+        outputPanels.push({
+          target_element: panel.target_element,
+          image_buffer: image_buffer,
+          width: 256,
+          height: 240
+        });
+        transferrableBuffers.push(image_buffer);
+      }
+      if (panel.id == "apu_window") {
+        let image_buffer = get_apu_pixels();
+        outputPanels.push({
+          target_element: panel.target_element,
+          image_buffer: image_buffer,
+          width: 256,
+          height: 500
+        });
+        transferrableBuffers.push(image_buffer);
+      }
+      if (panel.id == "piano_roll_window") {
+        let image_buffer = get_piano_roll_pixels();
+        outputPanels.push({
+          target_element: panel.target_element,
+          image_buffer: image_buffer,
+          width: 480,
+          height: 270
+        });
+        transferrableBuffers.push(image_buffer);
+      }
+    }
+    // TODO: this isn't an ArrayBuffer. It probably should be?
     let audio_buffer = consume_audio_samples();
-    postMessage({"type": "deliverFrame", "image_buffer": image_buffer, "audio_buffer": audio_buffer}, [image_buffer]);
+    postMessage({"type": "deliverFrame", "panels": outputPanels, "audio_buffer": audio_buffer}, transferrableBuffers);
   }
 }
 

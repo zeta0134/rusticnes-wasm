@@ -31,8 +31,7 @@ worker.onmessage = function(e) {
     onready();
   }
   if (e.data.type == "deliverFrame") {
-    const typed_game_pixels = new Uint8ClampedArray(e.data.image_buffer);
-    g_rendered_frames.push(typed_game_pixels);
+    g_rendered_frames.push(e.data.panels);
     g_pending_frames -= 1;
     g_frames_since_last_fps_count += 1;
     if (g_audio_samples_buffered < 8192) {
@@ -179,8 +178,7 @@ function load_cartridge_by_url(url) {
 
 function schedule_frames_at_top_speed() {
   if (g_pending_frames < 10) {
-    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2]});
-    g_pending_frames += 1;
+    requestFrame();
   }
   window.setTimeout(schedule_frames_at_top_speed, 1);
 }
@@ -193,30 +191,39 @@ function sync_to_audio() {
     const pending_samples = g_pending_frames * g_last_frame_sample_count;
     const sample_threshold = 2048;
     if (actual_samples + pending_samples < sample_threshold) {
-      worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2]});
-      g_pending_frames += 1;
+      requestFrame();
     }
   }
   window.setTimeout(sync_to_audio, 1);
 }
 
-// TESTING! Do not actually use this this way, schedule it properly.
-async function run_one_frame() {
-  canvas = document.querySelector("#pixels");
-  await rpc("run_one_frame");
-  let image_data = await rpc("get_screen_pixels");
-  ctx = canvas.getContext("2d", { alpha: false });
-  ctx.putImageData(image_data, 0, 0);
-  ctx.imageSmoothingEnabled = false;
+function requestFrame() {  
+  let active_tab = document.querySelector(".tab_content.active").id;
+  if (active_tab == "jam") {
+    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
+      {"id": "screen", "target_element": "#jam_pixels"},
+      {"id": "apu_window", "target_element": "#apu_window"},
+      {"id": "piano_roll_window", "target_element": "#piano_roll_window"},
+    ]});
+  } else {
+    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
+      {"id": "screen", "target_element": "#pixels"}
+    ]});
+  }
+  g_pending_frames += 1;
 }
 
 function renderLoop() {
   if (g_rendered_frames.length > 0) {
-    let rendered_frame = new ImageData(g_rendered_frames.shift(), 256, 240);
-    canvas = document.querySelector("#pixels");
-    ctx = canvas.getContext("2d", { alpha: false });
-    ctx.putImageData(rendered_frame, 0, 0);
-    ctx.imageSmoothingEnabled = false;
+    for (let panel of g_rendered_frames.shift()) {
+      const typed_pixels = new Uint8ClampedArray(panel.image_buffer);
+      // TODO: don't hard-code the panel size here
+      let rendered_frame = new ImageData(typed_pixels, panel.width, panel.height);
+      canvas = document.querySelector(panel.target_element);
+      ctx = canvas.getContext("2d", { alpha: false });
+      ctx.putImageData(rendered_frame, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+    }
   }
 
   requestAnimationFrame(renderLoop);
