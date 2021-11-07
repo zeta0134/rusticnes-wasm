@@ -2,7 +2,7 @@
 
 let g_pending_frames = 0;
 let g_frames_since_last_fps_count = 0;
-let g_game_pixels = null;
+let g_rendered_frames = [];
 
 let g_audio_samples_buffered = 0;
 
@@ -30,15 +30,20 @@ worker.onmessage = function(e) {
     onready();
   }
   if (e.data.type == "deliverFrame") {
-    g_game_pixels = e.data.image_buffer;
-    // TODO: UNBREAK THIS
+    const typed_game_pixels = new Uint8ClampedArray(e.data.image_buffer);
+    g_rendered_frames.push(typed_game_pixels);
     g_pending_frames -= 1;
     g_frames_since_last_fps_count += 1;
     if (g_audio_samples_buffered < 8192) {
       g_nes_audio_node.port.postMessage({"type": "samples", "samples": e.data.audio_buffer});
       g_audio_samples_buffered += e.data.audio_buffer.length;
     } else {
-      console.log("Audio overrun; are we going too fast? Samples dropped.");
+      // Audio overrun, we're running too fast! Drop these samples on the floor and bail.
+      // (This can happen in fastforward mode.)
+    }
+    if (g_rendered_frames.length > 3) {
+      // Frame rendering running behing, dropping one frame
+      g_rendered_frames.shift(); // and throw it away
     }
   }
 }
@@ -79,7 +84,8 @@ async function onready() {
 
   requestAnimationFrame(renderLoop);
   // run the scheduler as often as we can. It will frequently decide not to schedule things, this is fine.
-  window.setInterval(schedule_frames_at_top_speed, 1);
+  //window.setInterval(schedule_frames_at_top_speed, 1);
+  window.setTimeout(sync_to_audio, 1);
   window.setInterval(compute_fps, 1000);
 }
 
@@ -127,11 +133,20 @@ function load_cartridge_by_file(e) {
 
 // ========== Emulator Runtime ==========
 
-async function schedule_frames_at_top_speed() {
+function schedule_frames_at_top_speed() {
   if (g_pending_frames < 10) {
     worker.postMessage({"type": "requestFrame"});
     g_pending_frames += 1;
   }
+  window.setTimeout(schedule_frames_at_top_speed, 1);
+}
+
+function sync_to_audio() {
+  if (g_pending_frames < 10 && g_audio_samples_buffered < 2048) {
+    worker.postMessage({"type": "requestFrame"});
+    g_pending_frames += 1;
+  }
+  window.setTimeout(sync_to_audio, 1);
 }
 
 // TESTING! Do not actually use this this way, schedule it properly.
@@ -145,15 +160,14 @@ async function run_one_frame() {
 }
 
 function renderLoop() {
-  if (g_game_pixels != null) {
-    const typed_game_pixels = new Uint8ClampedArray(g_game_pixels);
-    image_data = new ImageData(typed_game_pixels, 256, 240);
+  if (g_rendered_frames.length > 0) {
+    let rendered_frame = new ImageData(g_rendered_frames.shift(), 256, 240);
     canvas = document.querySelector("#pixels");
     ctx = canvas.getContext("2d", { alpha: false });
-    ctx.putImageData(image_data, 0, 0);
+    ctx.putImageData(rendered_frame, 0, 0);
     ctx.imageSmoothingEnabled = false;
-    g_game_pixels = null;
   }
+
   requestAnimationFrame(renderLoop);
 }
 
