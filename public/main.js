@@ -122,8 +122,8 @@ function init_ui_events() {
   document.addEventListener("mozfullscreenchange", handleFullscreenSwitch);
   document.addEventListener("MSFullscreenChange", handleFullscreenSwitch);
 
-  if (document.querySelector("#apu_window")) {
-    document.querySelector("#apu_window").addEventListener("click", handle_apu_window_click);
+  if (document.querySelector("#piano_roll_window")) {
+    document.querySelector("#piano_roll_window").addEventListener("click", handle_piano_roll_window_click);
   }
 }
 
@@ -207,7 +207,6 @@ function requestFrame() {
   if (active_tab == "jam") {
     worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
       {"id": "screen", "target_element": "#jam_pixels"},
-      {"id": "apu_window", "target_element": "#apu_window"},
       {"id": "piano_roll_window", "target_element": "#piano_roll_window"},
     ]});
   } else {
@@ -396,6 +395,6 @@ function display_banner(cartridge_name) {
   }
 }
 
-function handle_apu_window_click(e) {
-  rpc("handle_apu_window_click", [e.offsetX, e.offsetY]).then();
+function handle_piano_roll_window_click(e) {
+  rpc("handle_piano_roll_window_click", [e.offsetX / 2, e.offsetY / 2]).then();
 }

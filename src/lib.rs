@@ -213,11 +213,11 @@ pub fn has_sram() -> bool {
 }
 
 #[wasm_bindgen]
-pub fn apu_window_click(mx: i32, my: i32) {
+pub fn piano_roll_window_click(mx: i32, my: i32) {
   let mut runtime = RUNTIME.lock().expect("wat");
   let mut events: Vec<Event> = Vec::new();
-  let mut apu_window = APU_WINDOW.lock().expect("wat");
-  events.extend(apu_window.handle_event(&runtime, Event::MouseClick(mx, my)));
-  drop(apu_window);
+  let mut piano_roll_window = PIANO_ROLL_WINDOW.lock().expect("wat");
+  events.extend(piano_roll_window.handle_event(&runtime, Event::MouseClick(mx, my)));
+  drop(piano_roll_window);
   resolve_events(events, &mut runtime);
 }

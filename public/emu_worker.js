@@ -10,11 +10,10 @@ const {
   audio_buffer_full, 
   get_audio_buffer, 
   get_sram, set_sram, 
-  has_sram, update_windows, 
-  draw_apu_window, 
+  has_sram, update_windows,
   draw_piano_roll_window,
   draw_screen_pixels,
-  apu_window_click,
+  piano_roll_window_click,
   consume_audio_samples,
 } = wasm_bindgen;
 
@@ -42,13 +41,6 @@ function get_screen_pixels() {
   return raw_buffer;
 }
 
-function get_apu_pixels() {
-  let raw_buffer = new ArrayBuffer(256*500*4);
-  let screen_pixels = new Uint8ClampedArray(raw_buffer);
-  draw_apu_window(screen_pixels);
-  return raw_buffer;
-}
-
 function get_piano_roll_pixels() {
   let raw_buffer = new ArrayBuffer(480*270*4);
   let screen_pixels = new Uint8ClampedArray(raw_buffer);
@@ -56,17 +48,16 @@ function get_piano_roll_pixels() {
   return raw_buffer;
 }
 
-function handle_apu_window_click(mx, my) {  
-  apu_window_click(mx, my);
+function handle_piano_roll_window_click(mx, my) {  
+  piano_roll_window_click(mx, my);
 }
 
 const rpc_functions = {
   "load_cartridge": load_cartridge,
   "run_one_frame": run_one_frame,
   "get_screen_pixels": get_screen_pixels,
-  "get_apu_pixels": get_apu_pixels,
   "get_piano_roll_pixels": get_piano_roll_pixels,
-  "handle_apu_window_click": handle_apu_window_click,
+  "handle_piano_roll_window_click": handle_piano_roll_window_click,
   "has_sram": has_sram,
   "get_sram": get_sram,
   "set_sram": set_sram,
@@ -98,16 +89,6 @@ function handle_message(e) {
           image_buffer: image_buffer,
           width: 256,
           height: 240
-        });
-        transferrableBuffers.push(image_buffer);
-      }
-      if (panel.id == "apu_window") {
-        let image_buffer = get_apu_pixels();
-        outputPanels.push({
-          target_element: panel.target_element,
-          image_buffer: image_buffer,
-          width: 256,
-          height: 500
         });
         transferrableBuffers.push(image_buffer);
       }
