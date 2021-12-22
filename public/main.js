@@ -9,6 +9,22 @@ let g_audio_samples_buffered = 0;
 
 let g_game_checksum = -1;
 
+let g_screen_buffers = []
+let g_piano_roll_buffers = []
+let g_next_free_buffer_index = 0
+let g_last_rendered_buffer_index = 0
+let g_total_buffers = 16
+
+let g_frameskip = 0;
+let g_frame_delay = 0;
+
+// ========== Init which does not depend on DOM ========
+
+for (let i = 0; i < g_total_buffers; i++) {
+  // Allocate a good number of screen buffers
+  g_screen_buffers[i] = new ArrayBuffer(256*240*4);
+  g_piano_roll_buffers[i] = new ArrayBuffer(480*270*4);
+}
 
 // ========== Worker Setup and Utility ==========
 
@@ -33,9 +49,23 @@ worker.onmessage = function(e) {
     onready();
   }
   if (e.data.type == "deliverFrame") {
-    g_rendered_frames.push(e.data.panels);
+    if (e.data.panels.length > 0) {
+      g_rendered_frames.push(e.data.panels);
+      for (let panel of e.data.panels) {
+        if (panel.id == "screen") {
+          g_screen_buffers[g_last_rendered_buffer_index] = panel.image_buffer;
+        }
+        if (panel.id == "piano_roll_window") {
+          g_piano_roll_buffers[g_last_rendered_buffer_index] = panel.image_buffer;
+        }
+      }
+      g_last_rendered_buffer_index += 1;
+      if (g_last_rendered_buffer_index >= g_total_buffers) {
+        g_last_rendered_buffer_index = 0;
+      }
+      g_frames_since_last_fps_count += 1;
+    }
     g_pending_frames -= 1;
-    g_frames_since_last_fps_count += 1;
     if (g_audio_samples_buffered < 8192) {
       g_nes_audio_node.port.postMessage({"type": "samples", "samples": e.data.audio_buffer});
       g_audio_samples_buffered += e.data.audio_buffer.length;
@@ -202,19 +232,53 @@ function sync_to_audio() {
   window.setTimeout(sync_to_audio, 1);
 }
 
-function requestFrame() {  
+function requestFrame() {
   let active_tab = document.querySelector(".tab_content.active").id;
+  if (g_frame_delay > 0) {
+    // frameskip: advance the emulation, but do not populate or render
+    // any panels this time around
+    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": []});
+    g_frame_delay -= 1;
+    g_pending_frames += 1;
+    return;
+  }
   if (active_tab == "jam") {
-    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
-      {"id": "screen", "target_element": "#jam_pixels"},
-      {"id": "piano_roll_window", "target_element": "#piano_roll_window"},
-    ]});
+    worker.postMessage(
+      {"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
+        {
+          "id": "screen", 
+          "target_element": "#jam_pixels",
+          "dest_buffer": g_screen_buffers[g_next_free_buffer_index],
+        },
+        {
+          "id": "piano_roll_window", 
+          "target_element": "#piano_roll_window",
+          "dest_buffer": g_piano_roll_buffers[g_next_free_buffer_index],
+        },
+      ]},
+      [
+        g_screen_buffers[g_next_free_buffer_index], 
+        g_piano_roll_buffers[g_next_free_buffer_index]
+      ]
+    );
   } else {
-    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
-      {"id": "screen", "target_element": "#pixels"}
-    ]});
+    worker.postMessage(
+      {"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
+        {
+          "id": "screen", 
+          "target_element": "#pixels",
+          "dest_buffer": g_screen_buffers[g_next_free_buffer_index],
+        }
+      ]},
+      [g_screen_buffers[g_next_free_buffer_index]]
+    );
   }
   g_pending_frames += 1;
+  g_next_free_buffer_index += 1;
+  if (g_next_free_buffer_index >= g_total_buffers) {
+    g_next_free_buffer_index = 0;
+  }
+  g_frame_delay = g_frameskip;
 }
 
 function renderLoop() {

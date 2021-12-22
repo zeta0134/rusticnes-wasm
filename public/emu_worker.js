@@ -34,18 +34,20 @@ function run_one_frame() {
   update_windows();
 }
 
-function get_screen_pixels() {
-  let raw_buffer = new ArrayBuffer(256*240*4);
-  let screen_pixels = new Uint8ClampedArray(raw_buffer);
+function get_screen_pixels(dest_array_buffer) {
+  //let raw_buffer = new ArrayBuffer(256*240*4);
+  //let screen_pixels = new Uint8ClampedArray(raw_buffer);
+  let screen_pixels = new Uint8ClampedArray(dest_array_buffer);
   draw_screen_pixels(screen_pixels);
-  return raw_buffer;
+  return dest_array_buffer;
 }
 
-function get_piano_roll_pixels() {
-  let raw_buffer = new ArrayBuffer(480*270*4);
-  let screen_pixels = new Uint8ClampedArray(raw_buffer);
+function get_piano_roll_pixels(dest_array_buffer) {
+  //let raw_buffer = new ArrayBuffer(480*270*4);
+  //let screen_pixels = new Uint8ClampedArray(raw_buffer);
+  let screen_pixels = new Uint8ClampedArray(dest_array_buffer);
   draw_piano_roll_window(screen_pixels);
-  return raw_buffer;
+  return dest_array_buffer;
 }
 
 function handle_piano_roll_window_click(mx, my) {  
@@ -83,8 +85,9 @@ function handle_message(e) {
     let transferrableBuffers = [];
     for (let panel of e.data.panels) {
       if (panel.id == "screen") {
-        let image_buffer = get_screen_pixels();
+        let image_buffer = get_screen_pixels(panel.dest_buffer);
         outputPanels.push({
+          id: "screen",
           target_element: panel.target_element,
           image_buffer: image_buffer,
           width: 256,
@@ -93,8 +96,9 @@ function handle_message(e) {
         transferrableBuffers.push(image_buffer);
       }
       if (panel.id == "piano_roll_window") {
-        let image_buffer = get_piano_roll_pixels();
+        let image_buffer = get_piano_roll_pixels(panel.dest_buffer);
         outputPanels.push({
+          id: "piano_roll_window",
           target_element: panel.target_element,
           image_buffer: image_buffer,
           width: 480,
