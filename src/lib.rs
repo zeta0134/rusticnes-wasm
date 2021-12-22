@@ -114,7 +114,7 @@ pub fn render_screen_pixels() {
 pub fn draw_screen_pixels(pixels: &mut [u8]) {
   render_screen_pixels();
   let render_canvas = GAME_RENDER.lock().expect("wat");
-  pixels.clone_from_slice(&render_canvas.buffer[0..(256*240*4)]);
+  pixels.copy_from_slice(&render_canvas.buffer[0..(256*240*4)]);
 }
 
 #[wasm_bindgen]
@@ -122,7 +122,7 @@ pub fn draw_apu_window(dest: &mut [u8]) {
   let mut runtime = RUNTIME.lock().expect("wat");
   let mut apu_window = APU_WINDOW.lock().expect("wat");
   resolve_events(apu_window.handle_event(&runtime, Event::RequestFrame), &mut runtime);
-  dest.clone_from_slice(&apu_window.active_canvas().buffer[0..(256*500*4)]);
+  dest.copy_from_slice(&apu_window.active_canvas().buffer[0..(256*500*4)]);
 }
 
 #[wasm_bindgen]
@@ -130,7 +130,7 @@ pub fn draw_piano_roll_window(dest: &mut [u8]) {
   let mut runtime = RUNTIME.lock().expect("wat");
   let mut piano_roll_window = PIANO_ROLL_WINDOW.lock().expect("wat");
   resolve_events(piano_roll_window.handle_event(&runtime, Event::RequestFrame), &mut runtime);
-  dest.clone_from_slice(&piano_roll_window.active_canvas().buffer);
+  dest.copy_from_slice(&piano_roll_window.active_canvas().buffer);
 }
 
 #[wasm_bindgen]
