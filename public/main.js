@@ -6,6 +6,8 @@ let g_rendered_frames = [];
 
 let g_last_frame_sample_count = 44100 / 60; // Close-ish enough
 let g_audio_samples_buffered = 0;
+let g_new_frame_sample_threshold = 2048; // under which we request a new frame
+let g_audio_overrun_sample_threshold = 8192; // over which we *drop* samples
 
 let g_game_checksum = -1;
 
@@ -68,7 +70,7 @@ worker.onmessage = function(e) {
       g_frames_since_last_fps_count += 1;
     }
     g_pending_frames -= 1;
-    if (g_audio_samples_buffered < 8192) {
+    if (g_audio_samples_buffered < g_audio_overrun_sample_threshold) {
       g_nes_audio_node.port.postMessage({"type": "samples", "samples": e.data.audio_buffer});
       g_audio_samples_buffered += e.data.audio_buffer.length;
       g_last_frame_sample_count = e.data.audio_buffer.length;
@@ -231,8 +233,7 @@ function sync_to_audio() {
   if (g_pending_frames < 10) {
     const actual_samples = g_audio_samples_buffered;
     const pending_samples = g_pending_frames * g_last_frame_sample_count;
-    const sample_threshold = 2048;
-    if (actual_samples + pending_samples < sample_threshold) {
+    if (actual_samples + pending_samples < g_new_frame_sample_threshold) {
       requestFrame();
     }
   }
