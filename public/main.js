@@ -9,14 +9,16 @@ let g_audio_samples_buffered = 0;
 
 let g_game_checksum = -1;
 
-let g_screen_buffers = []
-let g_piano_roll_buffers = []
-let g_next_free_buffer_index = 0
-let g_last_rendered_buffer_index = 0
-let g_total_buffers = 16
+let g_screen_buffers = [];
+let g_piano_roll_buffers = [];
+let g_next_free_buffer_index = 0;
+let g_last_rendered_buffer_index = 0;
+let g_total_buffers = 16;
 
 let g_frameskip = 0;
 let g_frame_delay = 0;
+
+let g_audio_confirmed_working = false;
 
 // ========== Init which does not depend on DOM ========
 
@@ -100,6 +102,11 @@ async function init_audio_context() {
 function handle_audio_message(e) {
   if (e.data.type == "samplesPlayed") {
     g_audio_samples_buffered -= e.data.count;
+    if (!g_audio_confirmed_working) {
+      let audio_context_banner = document.querySelector("#audio-context-warning");
+      audio_context_banner.classList.remove("active");
+      g_audio_confirmed_working = true;
+    }
   }
 }
 

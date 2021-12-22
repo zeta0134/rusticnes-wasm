@@ -320,3 +320,9 @@ input#file-loader {
 .banner a:hover {
   color: #999;
 }
+
+.banner.active.error {
+  background-color: #311;
+  border-bottom: 2px solid #622;
+  color: #755;
+}
