@@ -22,6 +22,8 @@ let g_frame_delay = 0;
 
 let g_audio_confirmed_working = false;
 
+let g_profiling_results = {};
+
 // ========== Init which does not depend on DOM ========
 
 for (let i = 0; i < g_total_buffers; i++) {
@@ -83,6 +85,19 @@ worker.onmessage = function(e) {
       g_rendered_frames.shift(); // and throw it away
     }
   }
+  if (e.data.type == "reportPerformance") {
+    g_profiling_results[e.data.event] = e.data.average_milliseconds;
+  }
+}
+
+function render_profiling_results() {
+  let results = "";
+  for (let event_name in g_profiling_results) {
+    let time = g_profiling_results[event_name].toFixed(2);
+    results += `${event_name}: ${time}\n`
+  }
+  var results_box = document.querySelector("#profiling-results");
+  results_box.innerHTML = results;
 }
 
 // ========== Audio Setup ==========
@@ -128,6 +143,7 @@ async function onready() {
   //window.setInterval(schedule_frames_at_top_speed, 1);
   window.setTimeout(sync_to_audio, 1);
   window.setInterval(compute_fps, 1000);
+  window.setInterval(render_profiling_results, 1000);
   window.setInterval(save_sram_periodically, 10000);
 
   // Attempt to load a cartridge by URL, if one is provided

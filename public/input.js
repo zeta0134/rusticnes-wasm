@@ -39,6 +39,10 @@ window.addEventListener('keydown', function(event) {
       }
     }
   }
+  if (event.key == "p") {
+    var debug_box = document.querySelector("#debug-box");
+    debug_box.classList.toggle("active");
+  }
 });
 
 window.addEventListener('keyup', function(event) {

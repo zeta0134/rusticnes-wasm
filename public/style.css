@@ -326,3 +326,23 @@ input#file-loader {
   border-bottom: 2px solid #622;
   color: #755;
 }
+
+.debug-box {
+  display: none;
+}
+
+.debug-box.active {
+  display: block;
+  text-align: center;
+  background-color: #441;
+  border-bottom: 2px solid #552;
+  color: #885;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.debug-box pre {
+  text-align: left;
+  width:  200px;
+  margin-left: 500px;
+}

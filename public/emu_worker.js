@@ -18,6 +18,27 @@ const {
 } = wasm_bindgen;
 
 let initialized = false;
+let profiling = {
+  run_one_frame: {accumulated_time: 0, count: 0},
+  render_screen: {accumulated_time: 0, count: 0},
+  render_piano_roll: {accumulated_time: 0, count: 0},
+  idle: {accumulated_time: 0, count: 0},
+}
+let idle_start = 0;
+let idle_accumulator = 0;
+
+function collect_profiling(event_name, measured_time) {
+  let profile = profiling[event_name]
+  profile.accumulated_time += measured_time;
+  profile.count += 1
+  // do an average over 10 frames or so
+  if (profile.count >= 600) {
+    let average = profile.accumulated_time / 600
+    profile.count = 0
+    profile.accumulated_time = 0
+    postMessage({"type": "reportPerformance", "event": event_name, "average_milliseconds": average});
+  }
+}
 
 // TODO: The rust side of this *should* be generating appropriate error
 // messages. Can we catch those and propogate that error to the UI? That
@@ -30,23 +51,29 @@ function load_cartridge(cart_data) {
 }
 
 function run_one_frame() {
+  let start_time = performance.now();
   run_until_vblank();
   update_windows();
+  collect_profiling("run_one_frame", performance.now() - start_time)
 }
 
 function get_screen_pixels(dest_array_buffer) {
+  let start_time = performance.now();
   //let raw_buffer = new ArrayBuffer(256*240*4);
   //let screen_pixels = new Uint8ClampedArray(raw_buffer);
   let screen_pixels = new Uint8ClampedArray(dest_array_buffer);
   draw_screen_pixels(screen_pixels);
+  collect_profiling("render_screen", performance.now() - start_time)
   return dest_array_buffer;
 }
 
 function get_piano_roll_pixels(dest_array_buffer) {
+  let start_time = performance.now();
   //let raw_buffer = new ArrayBuffer(480*270*4);
   //let screen_pixels = new Uint8ClampedArray(raw_buffer);
   let screen_pixels = new Uint8ClampedArray(dest_array_buffer);
   draw_piano_roll_window(screen_pixels);
+  collect_profiling("render_piano_roll", performance.now() - start_time)
   return dest_array_buffer;
 }
 
@@ -73,10 +100,16 @@ function rpc(task, args, reply_channel) {
 }
 
 function handle_message(e) {
+  idle_accumulator += performance.now() - idle_start;
   if (e.data.type == "rpc") {
     rpc(e.data.func, e.data.args, e.ports[0])
   }
   if (e.data.type == "requestFrame") {
+    // Measure the idle time between each frame, for profiling purposes
+    collect_profiling("idle", idle_accumulator);
+    idle_accumulator = 0;
+
+    // Run one step of the emulator
     set_p1_input(e.data.p1);
     set_p2_input(e.data.p2);
     run_one_frame();
@@ -111,6 +144,7 @@ function handle_message(e) {
     let audio_buffer = consume_audio_samples();
     postMessage({"type": "deliverFrame", "panels": outputPanels, "audio_buffer": audio_buffer}, transferrableBuffers);
   }
+  idle_start = performance.now();
 }
 
 worker_init = function() {
