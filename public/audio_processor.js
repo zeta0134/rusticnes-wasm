@@ -41,6 +41,8 @@ class NesAudioProcessor extends AudioWorkletProcessor {
           channel[i] = (this.lastPlayedSample / 37268);
         }
       })
+      // Tell the main thread that we've run behind
+      this.port.postMessage({"type": "audioUnderrun", "count": output[0].length});
     }
     
     return true

@@ -21,8 +21,18 @@ let g_frameskip = 0;
 let g_frame_delay = 0;
 
 let g_audio_confirmed_working = false;
-
 let g_profiling_results = {};
+
+let g_trouble_detector = {
+  successful_samples: 0,
+  failed_samples: 0,
+  frames_requested: 0,
+  trouble_count: 0,
+  got_better_count: 0,
+}
+
+let g_increase_frameskip_threshold = 0.01; // percent of missed samples
+let g_decrease_frameskip_headroom = 1.5 // percent of the time taken to render one frame
 
 // ========== Init which does not depend on DOM ========
 
@@ -100,6 +110,70 @@ function render_profiling_results() {
   results_box.innerHTML = results;
 }
 
+function automatic_frameskip() {
+  // first off, do we have enough profiling data collected?
+  if (g_trouble_detector.frames_requested >= 60) {
+    let audio_fail_percent = g_trouble_detector.failed_samples / g_trouble_detector.successful_samples;
+    if (g_frameskip < 2) {
+      // if our audio context is running behind, let's try
+      // rendering fewer frames to compensate
+      if (audio_fail_percent > g_increase_frameskip_threshold) {
+        g_trouble_detector.trouble_count += 1;
+        g_trouble_detector.got_better_count = 0;
+        console.log("Audio failure percentage: ", audio_fail_percent);
+        console.log("Trouble count incremented to: ", g_trouble_detector.trouble_count);
+        if (g_trouble_detector.trouble_count > 3) {
+          // that's quite enough of that
+          g_frameskip += 1;
+          g_trouble_detector.trouble_count = 0;
+          console.log("Frameskip increased to: ", g_frameskip);
+          console.log("Trouble reset")
+        }
+      } else {
+        // Slowly recover from brief trouble spikes
+        // without taking action
+        if (g_trouble_detector.trouble_count > 0) {
+          g_trouble_detector.trouble_count -= 1;
+          console.log("Trouble count relaxed to: ", g_trouble_detector.trouble_count);
+        }
+      }
+    }
+    if (g_frameskip > 0) {
+      // Perform a bunch of sanity checks to see if it looks safe to
+      // decrease frameskip.
+      if (audio_fail_percent < g_increase_frameskip_threshold) {
+        // how long would it take to render one frame right now?
+        let frame_render_cost = g_profiling_results.render_all_panels;
+        let cost_with_headroom = frame_render_cost * g_decrease_frameskip_headroom;
+        // Would a full render reliably fit in our idle time?
+        if (cost_with_headroom < g_profiling_results.idle) {
+          console.log("Frame render costs: ", frame_render_cost);
+          console.log("With headroom: ", cost_with_headroom);
+          console.log("Idle time currently: ", g_profiling_results.idle);
+          g_trouble_detector.got_better_count += 1;
+          console.log("Recovery count increased to: ", g_trouble_detector.got_better_count);
+        }
+        if (cost_with_headroom > g_profiling_results.idle) {
+          if (g_trouble_detector.got_better_count > 0) {
+            g_trouble_detector.got_better_count -= 1;
+            console.log("Recovery count decreased to: ", g_trouble_detector.got_better_count);
+          }
+        }
+        if (g_trouble_detector.got_better_count >= 10) {
+          g_frameskip -= 1;
+          console.log("Performance recovered! Lowering frameskip by 1 to: ");
+          g_trouble_detector.got_better_count = 0;
+        }
+      }
+    }
+
+    // now reset the counters for the next run
+    g_trouble_detector.frames_requested = 0;
+    g_trouble_detector.failed_samples = 0;
+    g_trouble_detector.successful_samples = 0;
+  }
+}
+
 // ========== Audio Setup ==========
 
 let g_audio_context = null;
@@ -119,11 +193,15 @@ async function init_audio_context() {
 function handle_audio_message(e) {
   if (e.data.type == "samplesPlayed") {
     g_audio_samples_buffered -= e.data.count;
+    g_trouble_detector.successful_samples += e.data.count;
     if (!g_audio_confirmed_working) {
       let audio_context_banner = document.querySelector("#audio-context-warning");
       audio_context_banner.classList.remove("active");
       g_audio_confirmed_working = true;
     }
+  }
+  if (e.data.type == "audioUnderrun") {
+    g_trouble_detector.failed_samples += e.data.count;
   }
 }
 
@@ -144,6 +222,7 @@ async function onready() {
   window.setTimeout(sync_to_audio, 1);
   window.setInterval(compute_fps, 1000);
   window.setInterval(render_profiling_results, 1000);
+  window.setInterval(automatic_frameskip, 1000);
   window.setInterval(save_sram_periodically, 10000);
 
   // Attempt to load a cartridge by URL, if one is provided
@@ -257,6 +336,7 @@ function sync_to_audio() {
 }
 
 function requestFrame() {
+  g_trouble_detector.frames_requested += 1;
   let active_tab = document.querySelector(".tab_content.active").id;
   if (g_frame_delay > 0) {
     // frameskip: advance the emulation, but do not populate or render

@@ -23,6 +23,7 @@ let profiling = {
   render_screen: {accumulated_time: 0, count: 0},
   render_piano_roll: {accumulated_time: 0, count: 0},
   idle: {accumulated_time: 0, count: 0},
+  render_all_panels: {accumulated_time: 0, count: 0},
 }
 let idle_start = 0;
 let idle_accumulator = 0;
@@ -30,12 +31,12 @@ let idle_accumulator = 0;
 function collect_profiling(event_name, measured_time) {
   let profile = profiling[event_name]
   profile.accumulated_time += measured_time;
-  profile.count += 1
+  profile.count += 1;
   // do an average over 10 frames or so
-  if (profile.count >= 600) {
-    let average = profile.accumulated_time / 600
-    profile.count = 0
-    profile.accumulated_time = 0
+  if (profile.count >= 60) {
+    let average = profile.accumulated_time / 60;
+    profile.count = 0;
+    profile.accumulated_time = 0;
     postMessage({"type": "reportPerformance", "event": event_name, "average_milliseconds": average});
   }
 }
@@ -116,6 +117,7 @@ function handle_message(e) {
 
     let outputPanels = [];
     let transferrableBuffers = [];
+    let panel_start_time = performance.now();
     for (let panel of e.data.panels) {
       if (panel.id == "screen") {
         let image_buffer = get_screen_pixels(panel.dest_buffer);
@@ -139,6 +141,10 @@ function handle_message(e) {
         });
         transferrableBuffers.push(image_buffer);
       }
+    }
+    // Only profile a render if we actually drew something
+    if (e.data.panels.length > 0) {
+      collect_profiling("render_all_panels", performance.now() - panel_start_time)
     }
     // TODO: this isn't an ArrayBuffer. It probably should be?
     let audio_buffer = consume_audio_samples();
