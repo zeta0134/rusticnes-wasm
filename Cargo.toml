@@ -3,6 +3,10 @@ name = "rusticnes-wasm"
 version = "0.1.0"
 authors = ["Nicholas Flynt <thegamefreak0134@gmail.com>"]
 
+[profile.release]
+lto = "fat"
+codegen-units = 1
+
 [lib]
 crate-type = ["cdylib"]
 
