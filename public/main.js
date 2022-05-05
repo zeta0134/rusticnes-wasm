@@ -6,7 +6,7 @@ let g_rendered_frames = [];
 
 let g_last_frame_sample_count = 44100 / 60; // Close-ish enough
 let g_audio_samples_buffered = 0;
-let g_new_frame_sample_threshold = 2048; // under which we request a new frame
+let g_new_frame_sample_threshold = 4096; // under which we request a new frame
 let g_audio_overrun_sample_threshold = 8192; // over which we *drop* samples
 
 let g_game_checksum = -1;
@@ -323,13 +323,17 @@ function schedule_frames_at_top_speed() {
 }
 
 function sync_to_audio() {
-  // Never, for any reason, request more than 10 frames at a time. This prevents
-  // the message queue from getting flooded if the emulator can't keep up.
-  if (g_pending_frames < 10) {
-    const actual_samples = g_audio_samples_buffered;
-    const pending_samples = g_pending_frames * g_last_frame_sample_count;
-    if (actual_samples + pending_samples < g_new_frame_sample_threshold) {
-      requestFrame();
+  // On mobile browsers, sometimes window.setTimeout isn't called often enough to reliably
+  // queue up single frames; try to catch up by up to 4 of them at once.
+  for (i = 0; i < 4; i++) {
+    // Never, for any reason, request more than 10 frames at a time. This prevents
+    // the message queue from getting flooded if the emulator can't keep up.
+    if (g_pending_frames < 10) {
+      const actual_samples = g_audio_samples_buffered;
+      const pending_samples = g_pending_frames * g_last_frame_sample_count;
+      if (actual_samples + pending_samples < g_new_frame_sample_threshold) {
+        requestFrame();
+      }
     }
   }
   window.setTimeout(sync_to_audio, 1);

@@ -47,8 +47,7 @@ function collect_profiling(event_name, measured_time) {
 // failure.
 function load_cartridge(cart_data) {
   load_rom(cart_data);
-  //set_audio_samplerate(audio_sample_rate);
-  //set_audio_buffersize(audio_buffer_size);
+  set_audio_samplerate(44100);
 }
 
 function run_one_frame() {

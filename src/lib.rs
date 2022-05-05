@@ -8,6 +8,7 @@ use std::sync::Mutex;
 use std::rc::Rc;
 
 use rusticnes_core::palettes::NTSC_PAL;
+use rusticnes_core::apu::FilterType;
 use wasm_bindgen::prelude::*;
 
 use rusticnes_ui_common::application::RuntimeState;
@@ -153,6 +154,12 @@ pub fn set_audio_samplerate(sample_rate: u32) {
   let nes = &mut runtime.nes;
   
   nes.apu.set_sample_rate(sample_rate as u64);
+  // while we're here, set the filter to low quality
+  nes.apu.set_filter(FilterType::FamiCom, false);
+  // and if this happens to be an N163 ROM, tell it not
+  // to use multiplexing, as this sounds *awful* when passed
+  // through the LQ filtering chain
+  nes.mapper.audio_multiplexing(false);
 }
 
 #[wasm_bindgen]
