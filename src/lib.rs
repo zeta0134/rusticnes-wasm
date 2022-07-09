@@ -103,9 +103,14 @@ pub fn render_screen_pixels() {
       let palette_index = ((nes.ppu.screen[y * 256 + x]) as usize) * 3;
       let pixel_offset = (y * 256 + x) * 4;
       // overlay with direct buffer reading
-      pixels[pixel_offset + 0] = ((NTSC_PAL[palette_index + 0] as u16 * overlay.buffer[pixel_offset + 0] as u16) / 255) as u8;
-      pixels[pixel_offset + 1] = ((NTSC_PAL[palette_index + 1] as u16 * overlay.buffer[pixel_offset + 1] as u16) / 255) as u8;
-      pixels[pixel_offset + 2] = ((NTSC_PAL[palette_index + 2] as u16 * overlay.buffer[pixel_offset + 2] as u16) / 255) as u8;
+      let alpha = overlay.buffer[pixel_offset] as u16;
+      let background_color = [3, 3, 3];
+      let r = (((NTSC_PAL[palette_index + 0] as u16 * alpha) + (background_color[0] * (256 - alpha))) / 256) as u8;
+      let g = (((NTSC_PAL[palette_index + 1] as u16 * alpha) + (background_color[1] * (256 - alpha))) / 256) as u8;
+      let b = (((NTSC_PAL[palette_index + 2] as u16 * alpha) + (background_color[2] * (256 - alpha))) / 256) as u8;
+      pixels[pixel_offset + 0] = r;
+      pixels[pixel_offset + 1] = g;
+      pixels[pixel_offset + 2] = b;
       pixels[((y * 256 + x) * 4) + 3] = 255;
     }
   }
