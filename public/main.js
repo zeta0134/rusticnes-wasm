@@ -107,7 +107,9 @@ function render_profiling_results() {
     results += `${event_name}: ${time}\n`
   }
   var results_box = document.querySelector("#profiling-results");
-  results_box.innerHTML = results;
+  if (results_box != null) {
+    results_box.innerHTML = results;
+  }
 }
 
 function automatic_frameskip() {
@@ -194,9 +196,11 @@ function handle_audio_message(e) {
   if (e.data.type == "samplesPlayed") {
     g_audio_samples_buffered -= e.data.count;
     g_trouble_detector.successful_samples += e.data.count;
-    if (!g_audio_confirmed_working) {
+    if (!g_audio_confirmed_working && g_trouble_detector.successful_samples > 44100) {
       let audio_context_banner = document.querySelector("#audio-context-warning");
-      audio_context_banner.classList.remove("active");
+      if (audio_context_banner != null) {
+        audio_context_banner.classList.remove("active");
+      }
       g_audio_confirmed_working = true;
     }
   }
@@ -475,7 +479,9 @@ function save_sram_periodically() {
 // This runs *around* once per second, ish. It's fine.
 function compute_fps() {
   let counter_element = document.querySelector("#fps-counter");
-  counter_element.innerText = "FPS: " + g_frames_since_last_fps_count;
+  if (counter_element != null) {
+    counter_element.innerText = "FPS: " + g_frames_since_last_fps_count;
+  }
   g_frames_since_last_fps_count = 0;
 }
 
