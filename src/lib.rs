@@ -19,6 +19,21 @@ use rusticnes_ui_common::piano_roll_window::PianoRollWindow;
 use rusticnes_ui_common::panel::Panel;
 use rusticnes_ui_common::drawing::SimpleBuffer;
 
+const WASM_CONFIG: &str = r###"
+[piano_roll]
+canvas_width = 480
+canvas_height = 270
+key_length = 16
+key_thickness = 4
+octave_count = 9
+scale_factor = 1
+speed_multiplier = 1
+starting_octave = 0
+waveform_height = 32
+oscilloscope_glow_thickness = 2.5
+oscilloscope_line_thickness = 0.5
+"###;
+
 /* There is no "main" scope, so our application globals need to be actual globals.
    These will be resolved any time a JS event needs to use them; JavaScript will only
    ever process one event in a single thread, but Rust doesn't know that, so we get to
@@ -55,6 +70,14 @@ pub fn resolve_events(mut events: Vec<Event>, runtime: &mut RuntimeState) {
     let responses = dispatch_event(event, runtime);
     events.extend(responses);
   }
+}
+
+#[wasm_bindgen]
+pub fn wasm_init() {
+  let mut runtime = RUNTIME.lock().expect("wat");
+  runtime.settings.load_str(WASM_CONFIG);
+  let settings_events = runtime.settings.apply_settings();
+  resolve_events(settings_events, &mut runtime);
 }
 
 #[wasm_bindgen]

@@ -1,6 +1,7 @@
 importScripts('./rusticnes_wasm.js');
 
 const { 
+  wasm_init,
   load_rom, 
   run_until_vblank,   
   set_p1_input, 
@@ -153,6 +154,7 @@ function handle_message(e) {
 }
 
 worker_init = function() {
+  wasm_init();
   // We are ready to go! Tell the main thread it can kick off execution
   initialized = true;
   postMessage({"type": "init"});
