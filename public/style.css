@@ -14,7 +14,8 @@ body {
   background-color: #030303;
   color: #FDF0F1;
   box-shadow: 0 0 16px #040404;
-  width: 1200px;
+  max-width: 1200px;
+  min-width: 800px;
   height: 100%;
   margin-left: auto;
   margin-right: auto;
