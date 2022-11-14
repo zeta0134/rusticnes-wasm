@@ -266,6 +266,13 @@ function init_ui_events() {
   if (document.querySelector("#piano_roll_window")) {
     document.querySelector("#piano_roll_window").addEventListener("click", handle_piano_roll_window_click);
   }
+
+  register_touch_button("#button_a");
+  register_touch_button("#button_b");
+  register_touch_button("#button_select");
+  register_touch_button("#button_start");
+  register_d_pad("#d_pad");
+  initialize_touch("#playfield");
 }
 
 // ========== Cartridge Management ==========
@@ -530,6 +537,13 @@ function handleFullscreenSwitch() {
     // Entering fullscreen
     var viewport = document.querySelector("#playfield");
     viewport.classList.add("fullscreen");
+    viewport.classList.remove("horizontal");
+    viewport.classList.remove("vertical");
+    if (is_touch_detected) {
+      viewport.classList.add("touchscreen");
+    } else {
+      viewport.classList.remove("touchscreen");
+    }
 
     setTimeout(function() {
       var viewport = document.querySelector("#playfield");
@@ -543,11 +557,13 @@ function handleFullscreenSwitch() {
         var target_width = target_height / 240 * 256;
         canvas_container.style.width = target_width + "px";
         canvas_container.style.height = target_height + "px";
+        viewport.classList.add("horizontal");
       } else {
         var target_width = viewport_width;
         var target_height = target_width / 256 * 240;
         canvas_container.style.width = target_width + "px";
         canvas_container.style.height = target_height + "px";
+        viewport.classList.add("vertical");
       }
     }, 100);
   } else {

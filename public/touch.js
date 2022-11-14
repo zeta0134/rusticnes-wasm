@@ -1,3 +1,4 @@
+is_touch_detected = false;
 touch_button_elements = [];
 dpad_elements = [];
 active_touches = {};
@@ -304,6 +305,7 @@ function process_active_touch_regions() {
 }
 
 function handleTouchEvent(event) {
+  is_touch_detected = true;
   event.preventDefault();
   handleTouches(event.touches);
 }

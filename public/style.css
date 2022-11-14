@@ -170,7 +170,8 @@ body {
   display: flex;
   height: 100%;
   flex-direction: column;
-  justify-content: center;
+  justify-content: top;
+  position:  relative;
 }
 
 #playfield.fullscreen {
@@ -352,4 +353,95 @@ input#file-loader {
   text-align: left;
   width:  200px;
   margin-left: 500px;
+}
+
+/* Simple shapes for drawing the touch controls.
+   Later we should either spruce these up or replace the
+   CSS art with better looking images
+ */
+.circle {
+  background-color: #FF0000;
+  border:  5px solid #551111;
+  border-radius:  50%;
+  width:  100px;
+  height:  100px;
+}
+
+.circle.active {
+  background-color: #FF8888;
+}
+
+.rectangle {
+  background-color: #555555;
+  border:  5px solid #222222;
+  border-radius:  10%;
+  width:  80px;
+  height: 30px;
+}
+
+.rectangle.active {
+  background-color: #cccccc;
+}
+
+.d-pad-button {
+  background-color: #222222;
+  border:  5px solid #111111;
+  border-radius:  10%;
+  width:  60px;
+  height: 60px;
+}
+
+.d-pad-button.active {
+  background-color: #666666;
+}
+
+/* Containers to PUT the button bits in */
+/* TODO: guard these on touch being detected */
+
+.round-button-area {
+  display:  none;
+  position: absolute;
+  bottom: 40px;
+  right:  40px;
+  width:  210px;
+  height:  150px;
+}
+
+.fullscreen.touchscreen .round-button-area {
+  display:  block;
+}
+
+.pill-button-area {
+  display:  none;
+  position: absolute;
+  width:  200px;
+  height:  30px;
+}
+
+.horizontal .pill-button-area {
+  top:  40px;
+  left:  40px;
+}
+
+.vertical .pill-button-area {
+  bottom:  40px;
+  left:  50%;
+  margin-left:  -100px;
+}
+
+.fullscreen.touchscreen .pill-button-area {
+  display:  block;
+}
+
+.dpad-area {
+  display:  none;
+  position: absolute;
+  width:  180px;
+  height:  180px;
+  left:  40px;
+  bottom:  40px;
+}
+
+.fullscreen.touchscreen .dpad-area {
+  display:  block;
 }
