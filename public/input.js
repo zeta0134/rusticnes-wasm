@@ -219,6 +219,7 @@ KEY_RIGHT = 128
 BUTTON_MAPPING = {
   "button_a": KEY_A,
   "button_b": KEY_B,
+  "button_ab": (KEY_A | KEY_B),
   "button_start": KEY_START,
   "button_select": KEY_SELECT
 }

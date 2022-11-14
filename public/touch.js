@@ -3,7 +3,7 @@ touch_button_elements = [];
 dpad_elements = [];
 active_touches = {};
 
-stickiness_radius = 10; // pixels, ish
+stickiness_radius = 5; // pixels, ish
 
 dpad_inner_deadzone_percent = 0.25;
 dpad_extra_radius_percent = 0.10;
@@ -209,7 +209,7 @@ function initialize_touch(querystring) {
   touch_root_element.addEventListener('touchcancel', handleTouchEvent)
 }
 
-function handleTouches(touches) {
+function handleTouches(touches, event) {
   // First, prune any touches that got released, and add (empty) touches for
   // new identifiers
   pruned_touches = {}
@@ -237,6 +237,7 @@ function handleTouches(touches) {
       for (let button_element of touch_button_elements) {
         if (is_inside_button(touch, button_element)) {
           pruned_touches[touch.identifier].button = button_element.id;
+          event.preventDefault();
         }
       }
     }
@@ -256,6 +257,7 @@ function handleTouches(touches) {
       for (let dpad_element of dpad_elements) {
         if (is_inside_dpad(touch, dpad_element)) {
           pruned_touches[touch.identifier].dpad = dpad_element.id;
+          event.preventDefault();
         }
       }
     }
@@ -265,6 +267,7 @@ function handleTouches(touches) {
       let dpad_element = document.getElementById(pruned_touches[touch.identifier].dpad);
       let old_directions = pruned_touches[touch.identifier].directions;
       pruned_touches[touch.identifier].directions = dpad_directions(touch, dpad_element, old_directions);
+      event.preventDefault();
     }
 
   }
@@ -306,7 +309,6 @@ function process_active_touch_regions() {
 
 function handleTouchEvent(event) {
   is_touch_detected = true;
-  event.preventDefault();
-  handleTouches(event.touches);
+  handleTouches(event.touches, event);
 }
 

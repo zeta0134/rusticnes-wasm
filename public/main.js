@@ -271,6 +271,7 @@ function init_ui_events() {
 
   register_touch_button("#button_a");
   register_touch_button("#button_b");
+  register_touch_button("#button_ab");
   register_touch_button("#button_select");
   register_touch_button("#button_start");
   register_d_pad("#d_pad");
@@ -521,16 +522,23 @@ function switchToTab(tab_name) {
 }
 
 function clickTab() {
-  switchToTab(this.getAttribute("name")); 
+  let tabName = this.getAttribute("name");
+  if (tabName == "fullscreen") {
+    switchToTab("playfield");
+    enterFullscreen();
+  } else {
+    switchToTab(tabName); 
+  }
 }
 
 function enterFullscreen() {
-  if (this.requestFullscreen) {
-    this.requestFullscreen();
-  } else if (this.mozRequestFullScreen) {
-    this.mozRequestFullScreen();
-  } else if (this.webkitRequestFullscreen) {
-    this.webkitRequestFullscreen();
+  var viewport = document.querySelector("#playfield");
+  if (viewport.requestFullscreen) {
+    viewport.requestFullscreen();
+  } else if (viewport.mozRequestFullScreen) {
+    viewport.mozRequestFullScreen();
+  } else if (viewport.webkitRequestFullscreen) {
+    viewport.webkitRequestFullscreen();
   }
 }
 

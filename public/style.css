@@ -367,6 +367,12 @@ input#file-loader {
   height:  100px;
 }
 
+.circle.small {
+  height:  50px;
+  width:  50px;
+  background-color:  #EE2200;
+}
+
 .circle.active {
   background-color: #FF8888;
 }
