@@ -26,7 +26,29 @@
     }
 
     .circle.active {
-      background-color: #00FF00;
+      background-color: #FF8888;
+    }
+
+    .rectangle {
+      background-color: #555555;
+      border:  5px solid #222222;
+      border-radius:  10%;
+    }
+
+    .rectangle.active {
+      background-color: #cccccc;
+    }
+
+    .d_pad_button {
+      background-color: #222222;
+      border:  5px solid #111111;
+      border-radius:  10%;
+    }
+
+    .d_pad_button.active {
+      background-color: #888888;
+      border:  5px solid #111111;
+      border-radius:  10%;
     }
 
     #touch_region_root {
@@ -43,14 +65,27 @@
 
 <div id="touch_region_root">
 
-<div id="test_circle_a" class="circle" style="width: 100px; height: 100px; position: absolute; top: 100px; left: 340px;"></div>
-<div id="test_circle_b" class="circle" style="width: 100px; height: 100px; position: absolute; top: 50px; left: 450px;"></div>
+<div id="d_pad" style="width: 180px; height: 180px; position: absolute; top: 50px; left: 25px;">
+  <div id="d_pad_up"    class="d_pad_button" style="width: 60px; height: 60px; position: absolute; top:   0px; left:  60px;" ></div>
+  <div id="d_pad_down"  class="d_pad_button" style="width: 60px; height: 60px; position: absolute; top: 120px; left:  60px;" ></div>
+  <div id="d_pad_left"  class="d_pad_button" style="width: 60px; height: 60px; position: absolute; top:  60px; left:   0px;" ></div>
+  <div id="d_pad_right" class="d_pad_button" style="width: 60px; height: 60px; position: absolute; top:  60px; left: 120px;" ></div>
+</div>
+
+<div id="button_select" class="rectangle" style="width: 80px; height: 30px; position: absolute; top: 150px; left: 250px;"></div>
+<div id="button_start" class="rectangle" style="width: 80px; height: 30px; position: absolute; top: 150px; left: 350px;"></div>
+
+<div id="button_a" class="circle" style="width: 100px; height: 100px; position: absolute; top: 100px; left: 490px;"></div>
+<div id="button_b" class="circle" style="width: 100px; height: 100px; position: absolute; top: 50px; left: 600px;"></div>
 
 </div>
 
 <script>
-  register_touch_button("#test_circle_a");
-  register_touch_button("#test_circle_b");
+  register_touch_button("#button_a");
+  register_touch_button("#button_b");
+  register_touch_button("#button_select");
+  register_touch_button("#button_start");
+  register_d_pad("#d_pad");
   initialize_touch("#touch_region_root");
 </script>
 </body>
