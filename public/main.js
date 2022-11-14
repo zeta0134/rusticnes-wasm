@@ -34,6 +34,8 @@ let g_trouble_detector = {
 let g_increase_frameskip_threshold = 0.01; // percent of missed samples
 let g_decrease_frameskip_headroom = 1.5 // percent of the time taken to render one frame
 
+let embed_autostart_url = null;
+
 // ========== Init which does not depend on DOM ========
 
 for (let i = 0; i < g_total_buffers; i++) {
@@ -354,19 +356,20 @@ function sync_to_audio() {
 }
 
 function requestFrame() {
+  updateTouchKeys();
   g_trouble_detector.frames_requested += 1;
   let active_tab = document.querySelector(".tab_content.active").id;
   if (g_frame_delay > 0) {
     // frameskip: advance the emulation, but do not populate or render
     // any panels this time around
-    worker.postMessage({"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": []});
+    worker.postMessage({"type": "requestFrame", "p1": keys[1] | touch_keys[1], "p2": keys[2] | touch_keys[2], "panels": []});
     g_frame_delay -= 1;
     g_pending_frames += 1;
     return;
   }
   if (active_tab == "jam") {
     worker.postMessage(
-      {"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
+      {"type": "requestFrame", "p1": keys[1] | touch_keys[1], "p2": keys[2] | touch_keys[2], "panels": [
         {
           "id": "screen", 
           "target_element": "#jam_pixels",
@@ -385,7 +388,7 @@ function requestFrame() {
     );
   } else {
     worker.postMessage(
-      {"type": "requestFrame", "p1": keys[1], "p2": keys[2], "panels": [
+      {"type": "requestFrame", "p1": keys[1] | touch_keys[1], "p2": keys[2] | touch_keys[2], "panels": [
         {
           "id": "screen", 
           "target_element": "#pixels",
