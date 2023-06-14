@@ -1,7 +1,8 @@
 // Note: The following variable is global, and represents our live button state for the emulator:
 // var keys = [0,0];
 
-var keys = [0,0];
+var keys = [0,0,0];
+var touch_keys = [0,0,0];
 var remap_key = false;
 var remap_index = 0;
 var remap_slot = 1;
@@ -204,4 +205,54 @@ function loadInputConfig() {
   } catch(e) {
     console.log("Local Storage is probably unavailable! Input configuration will not persist.");
   }
+}
+
+KEY_A = 1
+KEY_B = 2
+KEY_SELECT = 4
+KEY_START = 8
+KEY_UP = 16
+KEY_DOWN = 32
+KEY_LEFT = 64
+KEY_RIGHT = 128
+
+BUTTON_MAPPING = {
+  "button_a": KEY_A,
+  "button_b": KEY_B,
+  "button_ab": (KEY_A | KEY_B),
+  "button_start": KEY_START,
+  "button_select": KEY_SELECT
+}
+
+DIRECTION_MAPPING = {
+  "up": KEY_UP,
+  "down": KEY_DOWN,
+  "left": KEY_LEFT,
+  "right": KEY_RIGHT
+}
+
+function updateTouchKeys() {
+  p1_keys = 0;
+  // Iterate over the button and d-pad states and collect the key status in a byte
+  // Note: only implemented for P1 at the moment
+  for (let touch_identifier in active_touches) {
+    active_touch = active_touches[touch_identifier];
+    if (BUTTON_MAPPING.hasOwnProperty(active_touch.button)) {
+      p1_keys = p1_keys | BUTTON_MAPPING[active_touch.button];
+    }
+    if (active_touch.dpad != null) {
+      for (let direction of active_touch.directions) {
+        if (DIRECTION_MAPPING.hasOwnProperty(direction)) {
+          p1_keys = p1_keys | DIRECTION_MAPPING[direction];     
+        }
+      }
+    }
+  }
+  // Because we allow multiple touch points to activate the same D-pad input, we might accidentally produce a directional combination
+  // that should be disallowed on real hardware. Let's sanity check this and make sure we disallow U+D and L+R
+  p1_up_left = p1_keys & (KEY_UP | KEY_LEFT);
+  p1_down_right = p1_up_left << 1;
+  p1_down_right_mask = p1_down_right ^ 0xFF;
+
+  touch_keys[1] = p1_keys & p1_down_right_mask;
 }
