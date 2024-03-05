@@ -12,6 +12,7 @@ use rusticnes_core::apu::FilterType;
 use wasm_bindgen::prelude::*;
 
 use rusticnes_ui_common::application::RuntimeState;
+use rusticnes_ui_common::settings::SettingsState;
 use rusticnes_ui_common::events::Event;
 use rusticnes_ui_common::apu_window::ApuWindow;
 use rusticnes_ui_common::piano_roll_window::PianoRollWindow;
@@ -23,7 +24,7 @@ const WASM_CONFIG: &str = r###"
 [piano_roll]
 canvas_width = 480
 canvas_height = 270
-key_length = 16
+key_length = 24
 key_thickness = 4
 octave_count = 9
 scale_factor = 1
@@ -32,6 +33,9 @@ starting_octave = 0
 waveform_height = 32
 oscilloscope_glow_thickness = 2.5
 oscilloscope_line_thickness = 0.5
+divider_width = 2
+draw_text_labels = false
+draw_piano_strings = false
 "###;
 
 /* There is no "main" scope, so our application globals need to be actual globals.
@@ -75,6 +79,11 @@ pub fn resolve_events(mut events: Vec<Event>, runtime: &mut RuntimeState) {
 #[wasm_bindgen]
 pub fn wasm_init() {
   let mut runtime = RUNTIME.lock().expect("wat");
+
+  runtime.settings = SettingsState::new();
+  let settings_events = runtime.settings.apply_settings();
+  resolve_events(settings_events, &mut runtime);
+
   runtime.settings.load_str(WASM_CONFIG);
   let settings_events = runtime.settings.apply_settings();
   resolve_events(settings_events, &mut runtime);
