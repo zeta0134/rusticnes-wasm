@@ -1,3 +1,9 @@
+# Archival Notice
+
+This project has been renamed to Rustico, and moved to a shiny new monorepo over here: https://github.com/zeta0134/rustico
+
+Please update your bookmarks!  All new development will proceed in the monorepo, and I'll eventually remove these individual repositories.
+
 # RusticNES-wasm
 
 A web based interface for [RusticNES](https://github.com/zeta0134/rusticnes-core), running on Web Assembly for sweet retro action in the browser. Includes a basic web shell to operate the emulator, and relies on [wasm-bindgen](https://github.com/rustwasm/wasm-bindgen) to simplify the interface between the emulator core and the JavaScript UI. This is a reasonably early work in progress, expect bugs!
